@@ -1,0 +1,14 @@
+Wazuh 4.14.9 - estado posterior a la prueba controlada
+
+Imagenes:
+wazuh/wazuh-manager:4.14.9 2.73GB
+wazuh/wazuh-dashboard:4.14.9 2.14GB
+wazuh/wazuh-indexer:4.14.9 2.56GB
+
+Contenedores Wazuh (detenidos voluntariamente por RAM):
+/single-node-wazuh.indexer-1 estado=exited inicio=2026-10-21T23:09:14.172261755Z fin=2026-10-21T23:11:56.356726146Z reinicio=no
+/single-node-wazuh.manager-1 estado=exited inicio=2026-10-21T23:10:14.275134875Z fin=2026-10-21T23:11:56.52253484Z reinicio=no
+
+Requisitos Docker:
+CPU=8 RAM_bytes=9371779072
+vm.max_map_count=262144 (verificado durante la prueba)

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal académico UTS</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 3rem auto; padding: 0 1rem; color: #172337; }
+    a { color: #075a9c; }
+    nav { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Portal académico UTS</h1>
+  <p>Datos académicos simulados para el piloto de Cloud Computing.</p>
+  {% if session.get('user') %}
+  <p>Sesión: <strong>{{ session['user'] }}</strong> ({{ session['role'] }})</p>
+  <nav>
+    {% if session['role'] in ('docente', 'administrador') %}<a href="{{ url_for('estudiantes') }}">Estudiantes</a>{% endif %}
+    <a href="{{ url_for('cursos') }}">Cursos</a>
+    <a href="{{ url_for('matriculas') }}">Matrículas y notas</a>
+  </nav>
+  <form method="post" action="{{ url_for('logout') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button type="submit">Cerrar sesión</button>
+  </form>
+  {% else %}
+  <p><a href="{{ url_for('login') }}">Ingresar</a> para consultar los datos.</p>
+  {% endif %}
+  <p><a href="{{ url_for('health') }}">Estado del servicio</a></p>
+  <p>El acceso está limitado a este equipo; los datos son simulados.</p>
+</body>
+</html>

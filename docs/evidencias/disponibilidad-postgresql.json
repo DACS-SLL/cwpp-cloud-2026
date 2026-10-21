@@ -1,0 +1,30 @@
+{
+  "scope": "Prueba controlada local: portal y PostgreSQL en Docker Desktop; Wazuh/Falco apagados",
+  "started_utc": "2026-10-21T23:35:56.930251+00:00",
+  "finished_utc": "2026-10-21T23:36:16.039664+00:00",
+  "http": {
+    "health_during_outage": 503,
+    "query_during_outage": 503,
+    "health_after_recovery": 200,
+    "query_after_recovery": 200
+  },
+  "audit_events": [
+    {
+      "timestamp": "2026-10-21T23:36:05.507487+00:00",
+      "event": "service_unavailable"
+    },
+    {
+      "timestamp": "2026-10-21T23:36:09.487519+00:00",
+      "event": "service_unavailable"
+    },
+    {
+      "timestamp": "2026-10-21T23:36:13.436516+00:00",
+      "event": "database_query_failed"
+    },
+    {
+      "timestamp": "2026-10-21T23:36:13.944556+00:00",
+      "event": "service_unavailable"
+    }
+  ],
+  "database_restarted": true
+}

@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+credenciales_portal.txt
+__pycache__/
+*.pyc
+dist/
+docs/evidencias/capturas/
+security/wazuh/upstream/
+*.pem
+*.key
+internal_users.local.yml
+wazuh.local.yml
