@@ -1,6 +1,12 @@
 # Arquitectura del piloto CWPP
 
-Se muestran **dos despliegues del mismo equipo físico**. El de Windows conserva las pruebas iniciales; la VM Ubuntu es el piloto integrado actual. No se atribuye a Falco cobertura sobre los contenedores de Docker Desktop.
+La propuesta general muestra el servicio académico y sus dos fuentes de eventos. Los dos despliegues corresponden al mismo equipo físico: Windows conserva las pruebas iniciales y la VM Ubuntu es el piloto integrado actual. No se atribuye a Falco cobertura sobre los contenedores de Docker Desktop.
+
+## Propuesta general
+
+![Servicio académico y observación central](arquitectura-general.svg)
+
+[Abrir PNG para el informe](evidencias/arquitectura-general.png). La visualización con indexer y dashboard está marcada como ampliación futura; Ubuntu solo ejecuta el manager.
 
 ## 1. PC Windows · Docker Desktop
 

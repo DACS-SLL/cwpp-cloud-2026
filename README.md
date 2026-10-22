@@ -6,13 +6,14 @@ Piloto CWPP local para un portal académico de demostración: Flask/Gunicorn, Po
 
 | Si necesitas... | Lee... |
 | --- | --- |
-| Integrar este aporte al informe del grupo | [Informe editable del integrante 2](docs/entregables/informe-integrante-2.docx) y [fuente Markdown](docs/informe-integrante-2.md) |
+| Presentar el avance del integrante 2 | [Informe editable](docs/entregables/informe-integrante-2.docx) y [fuente Markdown](docs/informe-integrante-2.md) |
+| Coordinar con integrantes 3 y 4 | [Traspaso editable](docs/entregables/traspaso-integrantes-3-4.docx) y [fuente](docs/traspaso-integrantes-3-4.md) |
 | Reproducirlo en otra VM | [Guía de reproducción](docs/guia-reproduccion.md) |
 | Seleccionar y explicar capturas | [Guía de análisis de evidencias](docs/guia-analisis-evidencias.md) |
 | Ver el mapa de carpetas y documentos | [Índice de docs](docs/README.md) |
-| Entender las topologías | [Arquitectura Windows y Ubuntu](docs/arquitectura-actual.md) |
+| Entender las topologías | [Arquitectura general, Windows y Ubuntu](docs/arquitectura-actual.md) |
 
-Para recrear el DOCX tras editar su fuente, usa el Python del entorno de documentos con `python scripts/generar_informe_integrante_2.py` y revisa el resultado en Word. El directorio `docs/evidencias/capturas/` y las credenciales son locales y no se publican en Git.
+Para recrear ambos DOCX tras editar sus fuentes, usa `python scripts/generar_informe_integrante_2.py` con `python-docx` y revisa los resultados en Word. Las capturas originales y las credenciales son locales y no se publican en Git.
 
 En un **clon Git** usa siempre `-f ubuntu.compose.yaml` como configuración base de Ubuntu. El ZIP generado contiene esa misma configuración con el nombre `compose.yaml` en su raíz. `compose.yml` en la raíz conserva el piloto histórico de Windows; elegir `-f` evita ambigüedades.
 

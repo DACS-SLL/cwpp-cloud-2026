@@ -1,93 +1,132 @@
-# Implementación y validación del piloto CWPP de la Universidad Tecnológica del Sur
+# Avance del prototipo CWPP para la Universidad Tecnológica del Sur
 
-**Aporte técnico del integrante 2 para el informe grupal de Examen Parcial — Cloud Computing**
+**Aporte del integrante 2 · Examen Parcial de Cloud Computing**
 
 **Caso:** Universidad Tecnológica del Sur (UTS), institución ficticia.
 
 **Corte de evidencia:** 22 de octubre de 2026, hora UTC.
+**Estado:** prototipo local validado en laboratorio.
 
-**Estado:** piloto local verificado; no despliegue productivo.
+## 1. Alcance del prototipo
 
-> **Nota de integración para el integrante 4.** Este texto continúa la estructura de `Examen Parcial.pdf`: caso de estudio → marco teórico → análisis de amenazas → requisitos funcionales y no funcionales. Insértalo después de los criterios de verificación de RF/RNF como sección de **arquitectura, implementación y evaluación**. El caso institucional, matriz de riesgos y justificación teórica originales no se reemplazan. En el informe final unifica portada, numeración, citas y referencias del grupo; conserva los límites técnicos y pies de figura de este aporte.
+El prototipo representa el servicio académico de la UTS con un portal web y PostgreSQL en contenedores. El entorno integrado funciona en una VM Ubuntu de VirtualBox. Utiliza datos ficticios de 20 estudiantes, 7 cursos y 60 matrículas, y tres perfiles: estudiante, docente y administrador. El estudiante consulta sus matrículas; docente y administrador acceden al directorio permitido.
 
-## 5. Arquitectura del piloto
+El alcance de protección incluye control de acceso, auditoría JSON del portal, detección de procesos con Falco y análisis de eventos con Wazuh manager. Se validaron dos flujos de alertas reales en Ubuntu: Falco → Wazuh y portal → Wazuh. Windows accede al portal de la VM por un reenvío NAT local. El rediseño visual del portal se probó por separado en Windows; la VM de las evidencias conserva la interfaz anterior.
 
-### 5.1. Correspondencia con el caso de estudio
+Ubuntu contiene Wazuh manager sin indexer ni dashboard. Las pruebas históricas de Docker Desktop en Windows corresponden a otro entorno. Los resultados describen un laboratorio y no establecen rendimiento o disponibilidad de producción.
 
-El caso de estudio considera un servidor Linux, una aplicación académica en un contenedor y una base de datos en otro. El piloto implementa ese recorrido con una VM Ubuntu en VirtualBox, un portal Flask/Gunicorn y PostgreSQL 17. Añade dos fuentes de seguridad: auditoría JSON del portal y detección de actividad de procesos con Falco. Wazuh manager procesa ambas fuentes y registra alertas en `alerts.json`.
+## 2. Cómo la arquitectura y la propuesta solucionan el problema de la UTS
 
-Se utilizaron cuentas y registros ficticios: 20 estudiantes, 7 cursos y 60 matrículas. Los perfiles estudiante, docente y administrador tienen vistas diferenciadas. El estudiante solo consulta sus matrículas; docente y administrador pueden consultar el directorio completo de estudiantes. El navegador de Windows entra a la VM mediante un reenvío NAT local al puerto 18080. La VM no publica Wazuh hacia el anfitrión.
+El caso de la UTS concentra información académica en una aplicación y una base contenedorizadas. El acceso indebido, la ejecución inesperada dentro del contenedor y la interrupción de la base afectan la confidencialidad y continuidad. La propuesta aplica permisos por rol y registra acciones en el portal; Falco observa procesos del kernel Ubuntu; Wazuh manager analiza los dos orígenes y conserva alertas con reglas identificables.
 
-![Figura 1. Despliegue histórico y pruebas separadas en PC Windows](evidencias/arquitectura-windows.png)
+PostgreSQL queda en una red Docker interna y no publica su puerto al anfitrión. Los volúmenes separan datos académicos y registros de seguridad. Wazuh monta los registros fuente para lectura. El portal reduce privilegios y escritura en su contenedor. Las pruebas de acceso denegado, shell detectada y salud del servicio muestran controles operativos durante los escenarios ensayados.
 
-**Figura 1.** PC Windows: portal y base en Docker Desktop. Las sesiones de Wazuh manager/indexer y de indexer/dashboard fueron separadas; en la segunda, la API del manager figuró desconectada. Esta figura documenta la evolución, no una topología simultánea completa.
+## 3. Arquitectura propuesta
 
-![Figura 2. Piloto integrado en Ubuntu VirtualBox](evidencias/arquitectura-ubuntu.png)
+### 3.1. Arquitectura general
 
-**Figura 2.** VM Ubuntu: portal y PostgreSQL; Falco observa actividad del runtime del mismo kernel; Wazuh manager lee eventos Falco y auditoría del portal. Las tres alertas 100100, 100101 y 100200 fueron observadas en esta VM. No hay indexer ni dashboard.
+![Figura 1. Arquitectura general propuesta para el servicio académico](evidencias/arquitectura-general.png)
 
-### 5.2. Componentes y flujos
+**Figura 1.** El usuario accede al portal; este consulta PostgreSQL y emite auditoría. Falco observa ejecución de procesos. Wazuh recibe registros del portal y de Falco, aplica reglas y guarda alertas. Indexer y dashboard se representan como ampliación futura.
 
-| Componente | Función | Implementación comprobada |
+La arquitectura separa el servicio académico del plano de observación. El primero atiende consultas y conserva datos ficticios; el segundo recibe eventos estructurados y documenta detecciones. Así se distingue un evento registrado por la aplicación de uno detectado por el sensor del runtime.
+
+### 3.2. Arquitectura implementada en Ubuntu
+
+![Figura 2. Topología integrada de la VM Ubuntu](evidencias/arquitectura-ubuntu.png)
+
+**Figura 2.** En la misma VM funcionan `uts-portal`, `uts-database`, `uts-falco` y `uts-wazuh-manager`. Falco observa el kernel de Ubuntu; Wazuh lee su JSON y la auditoría del portal. Las alertas 100100, 100101 y 100200 quedaron en `alerts.json`.
+
+El navegador de Windows alcanza el portal mediante NAT local al puerto 18080. PostgreSQL permanece en la red interna. La topología Windows de pruebas previas no se suma a esta figura como un despliegue simultáneo.
+
+## 4. Elementos y su uso
+
+| Elemento | Uso | Evidencia |
 | --- | --- | --- |
-| Portal | Autenticación, autorización y consultas académicas | Flask/Gunicorn, contenedor `uts-portal`, puerto 8080 de la VM |
-| Base | Persistencia de datos ficticios | PostgreSQL 17, `uts-database`, volumen `postgres_data` y red interna |
-| Auditoría | Registro de eventos de aplicación | JSON en volumen `audit_logs`, montado de solo lectura por el manager |
-| Falco | Detección de shell en el contenedor | Falco 0.45.0, modern BPF, JSON local en `falco-logs/events.jsonl` |
-| Wazuh manager | Decodificación y reglas | Wazuh 4.14.9; reglas locales 100100/100101/100200; `alerts.json` persistente |
+| Portal Flask/Gunicorn | Autenticación, permisos, consultas y auditoría. | Tres roles, HTTP 403 y `/health` con `status: ok`. |
+| PostgreSQL 17 | Datos académicos ficticios persistentes. | Contenedor saludable y 20 estudiantes, 7 cursos, 60 matrículas. |
+| Docker Compose | Redes, volúmenes, límites y arranque reproducible. | Cuatro servicios ejecutados en Ubuntu. |
+| Falco 0.45.0 | Detección de procesos con modern BPF y salida JSON. | Shell controlada atribuida a `uts-portal`. |
+| Wazuh manager 4.14.9 | Decodificación, reglas y alertas. | Reglas reales 100100, 100101 y 100200. |
+| Docker Scout | Examen de paquetes de una imagen. | Hallazgo alto de zlib en la imagen examinada. |
+| Guías y scripts | Preparación y repetición de pruebas. | Verificadores y guía de reproducción versionados. |
 
-El portal consulta la base por una red Docker interna. La base no publica el puerto 5432. El portal corre con UID 10001, sistema de archivos raíz de solo lectura, capacidades eliminadas, `no-new-privileges` y límites de memoria y procesos. El sensor Falco necesita permisos elevados para observar el kernel; estos controles del portal no se le atribuyen. Wazuh manager lee los dos orígenes de eventos sin escribir en sus archivos fuente. Los datos y alertas conservan volúmenes separados.
+El portal usa UID 10001, raíz de solo lectura, capacidades eliminadas, `no-new-privileges` y límite de 256 MiB. Falco requiere permisos elevados para observar el kernel; las restricciones del portal no se atribuyen al sensor. Las credenciales y los registros completos permanecen fuera de Git.
 
-## 6. Implementación reproducible
+## 5. Relación con requisitos
 
-El repositorio versiona `ubuntu.compose.yaml` en la raíz para clonar y ejecutar, además de `deploy/ubuntu/compose.yaml`, `falco.compose.yaml`, `wazuh-manager.compose.yaml`, reglas XML, configuración de Wazuh, código del portal, esquema SQL y scripts de prueba. El portal se construye ahora desde `app/backend` y se etiqueta `uts-cwpp-portal:local`, para que otro integrante pueda reproducir el mismo front desde el commit utilizado. Las credenciales se generan localmente con `scripts/preparar_ubuntu.py` y permanecen fuera de Git. [La guía de reproducción](guia-reproduccion.md) incluye instalación, arranque, permisos de los volúmenes, pruebas y parada sin borrar datos.
-
-El ZIP de Ubuntu se genera mediante una lista blanca con `python scripts/paquetizar_ubuntu.py`. Incluye la fuente del portal y los archivos de despliegue, pero no `.env`, contraseñas, capturas originales, certificados ni logs completos. También se puede trabajar directamente con el clon Git. La versión exacta se registra con `git log -1 --oneline` antes de tomar evidencia.
-
-## 7. Verificación frente a amenazas y requisitos
-
-### 7.1. Resultados observados
-
-La prueba funcional comprobó ingreso y salida de los tres roles, 20 estudiantes, 7 cursos y 60 matrículas, además de una respuesta HTTP 403 para una vista no permitida al estudiante. El análisis de la imagen con Docker Scout reportó un hallazgo alto de zlib; ese resultado identifica una vulnerabilidad conocida, pero no demuestra explotación ni remediación.
-
-Falco detectó una shell controlada dentro de `uts-portal`. Después de convertir su salida a JSON, Wazuh manager procesó un **evento nuevo** y registró la regla 100200, nivel 8, a las 01:17:48.556 UTC del 22 de octubre de 2026. La reproducción separada con `wazuh-logtest` confirmó la coincidencia de la regla, pero la evidencia de recepción en vivo es la búsqueda de ese evento en `alerts.json`.
-
-El mismo manager leyó después el volumen de auditoría del portal. Una prueba nueva de roles produjo `login_failed` con regla 100100, nivel 7, y `access_denied` con regla 100101, nivel 6, a las 01:39:43 UTC. Tras esas pruebas, `/health` devolvió `{"database":"connected","status":"ok"}`. La ruta de auditoría describe acciones registradas por la **aplicación**; no es auditoría directa del motor PostgreSQL.
-
-En otra sesión de Windows, una caída controlada de PostgreSQL dio HTTP 503 durante la interrupción y HTTP 200 tras la recuperación, con eventos `service_unavailable` y `database_query_failed` en el log del portal. Las reglas Wazuh 100102/100103 se probaron con eventos **sintéticos**; no hay evidencia de una alerta en vivo de disponibilidad en Ubuntu.
-
-### 7.2. Matriz de requisitos del examen
-
-| Requisito | Estado del piloto | Evidencia y límite |
+| Requisito del examen | Estado | Evidencia y alcance |
 | --- | --- | --- |
-| RF-01 Acceso no autorizado | Verificado | HTTP 403, auditoría y alerta real Wazuh 100100/100101 en Ubuntu. |
-| RF-02 Vulnerabilidades | Verificado como identificación | Scout reportó zlib alto en la imagen anterior; corrección no demostrada. |
-| RF-03 Configuraciones inseguras | Parcial | Se documentó endurecimiento efectivo del portal; no se ejecutó una prueba específica con configuración insegura preparada. |
-| RF-04 Procesos sospechosos | Verificado | Falco detectó shell en `uts-portal`; Wazuh generó alerta real 100200. |
-| RF-05 Acceso a base | Parcial | El portal registró consultas `data_access`; no hay auditoría interna de PostgreSQL. |
-| RF-06 Interrupciones | Verificado en portal | Caída y recuperación controladas en Windows con HTTP 503/200 y auditoría; no alerta Wazuh real de 100102/100103 en Ubuntu. |
-| RNF-01 Disponibilidad | Verificación acotada | Portal/base healthy y `/health` ok tras pruebas; sin ensayo de carga o continuidad prolongada. |
-| RNF-02 Linux y Docker | Verificado | Los cuatro contenedores ejecutaron juntos en Ubuntu VirtualBox. |
-| RNF-03 Administración | Documentado | Compose, scripts y guía de reproducción; falta medir esfuerzo operativo sostenido. |
-| RNF-04 Integridad de registros | Parcial | Volúmenes y permisos de lectura restringida; sin prueba formal de inmutabilidad o retención. |
-| RNF-05 Recursos | Medido puntualmente | `docker stats`, `free -h` y `df -h`; no se midió promedio bajo carga ni comparación sostenida. |
-| RNF-06 Ampliación | Diseñado | [VMs, Kubernetes y serverless](extensiones-arquitectura.md) descritos; no desplegados. |
+| RF-01 Acceso no autorizado | Cumplido | El portal denegó una vista y Wazuh registró `login_failed` (100100) y `access_denied` (100101) en Ubuntu. |
+| RF-02 Vulnerabilidades conocidas | Cumplido | Docker Scout identificó un hallazgo alto de zlib en la imagen examinada. |
+| RF-03 Configuraciones inseguras y permisos excesivos | Parcialmente cumplido | El portal aplica controles de privilegios; la prueba no produjo una alerta específica de configuración insegura. |
+| RF-04 Procesos sospechosos | Cumplido | Falco detectó una shell en `uts-portal` y Wazuh registró 100200, nivel 8. |
+| RF-05 Acceso a base de datos | Parcialmente cumplido | El portal registró `data_access` de sus consultas; los eventos provienen de la aplicación y no del motor PostgreSQL. |
+| RF-06 Interrupciones del servicio | Cumplido | Una caída controlada de PostgreSQL en Windows produjo HTTP 503 y auditoría; la recuperación devolvió HTTP 200. |
+| RNF-01 Disponibilidad | Parcialmente cumplido | Portal y base siguieron saludables tras las pruebas Ubuntu; no se midió continuidad prolongada ni carga sostenida. |
+| RNF-02 Linux y contenedores | Cumplido | Cuatro servicios ejecutaron juntos en Ubuntu con Docker Engine y Compose. |
+| RNF-03 Administración por equipo pequeño | Parcialmente cumplido | Compose, scripts y documentación reproducen el piloto; no se midió esfuerzo operativo continuo. |
+| RNF-04 Integridad de registros | Parcialmente cumplido | Volúmenes y permisos restringen acceso; no se comprobó inmutabilidad ni retención. |
+| RNF-05 Recursos medibles | Cumplido | `docker stats`, `free -h` y `df -h` registraron CPU, memoria y disco en una muestra puntual. |
+| RNF-06 Extensión futura | Cumplido | La arquitectura documenta ampliaciones a otras VM, Kubernetes y funciones serverless. |
 
-## 8. Evidencia visual y lectura correcta
+## 6. Resultados
 
-Las figuras de arquitectura versionadas se pueden insertar directamente. Las capturas originales están en `docs/evidencias/capturas/` solo en el equipo del proyecto. Para el informe se recomiendan: 16 para portal/base y prueba de roles; 18 y 20 para sensor y detección Falco; 27 para la alerta real Falco → Wazuh; 28 para alertas reales del portal → Wazuh; 29 para el estado de cuatro contenedores y recursos. La captura 26 corresponde solo a `wazuh-logtest` y la 15 muestra dashboard con API offline. [La guía de análisis](guia-analisis-evidencias.md) contiene pie de figura sugerido, clasificación y límites de las 29 posiciones.
+La prueba funcional confirmó ingreso, salida, permisos y consultas de los tres perfiles. En Ubuntu, Wazuh registró una alerta real 100200 de nivel 8 por una shell detectada por Falco dentro de `uts-portal` a las 01:17:48.556 UTC. Otra prueba produjo 100100 de nivel 7 por `login_failed` y 100101 de nivel 6 por `access_denied` a las 01:39:43 UTC. Después, `/health` devolvió `{"database":"connected","status":"ok"}`.
 
-Los resultados depurados y versionados se encuentran en [wazuh-falco-ubuntu-verificacion.json](evidencias/wazuh-falco-ubuntu-verificacion.json), [wazuh-portal-ubuntu-verificacion.json](evidencias/wazuh-portal-ubuntu-verificacion.json), [disponibilidad-postgresql.json](evidencias/disponibilidad-postgresql.json) y [metricas-base.json](evidencias/metricas-base.json). Los valores de recursos son muestras puntuales. En la última muestra Ubuntu tenía cuatro contenedores activos, 2,4 GiB de memoria disponible y 9,0 GB libres en disco; Wazuh manager usaba 404,8 MiB. Estas cifras no prueban estabilidad prolongada.
+En Windows, una interrupción controlada de PostgreSQL produjo HTTP 503 y la recuperación HTTP 200. Las reglas 100102 y 100103 se ensayaron con eventos sintéticos; no representan alertas reales de disponibilidad en Ubuntu. Scout encontró una vulnerabilidad alta de zlib en una imagen anterior; ese hallazgo no demuestra explotación ni remediación.
 
-## 9. Límites, pendientes y entrega al integrante 4
+En la muestra de recursos final, cuatro contenedores estaban activos; portal y base figuraban saludables. Wazuh manager usaba 404,8 MiB, Ubuntu informaba 2,4 GiB de memoria disponible y 9,0 GB libres en disco. Los valores describen ese instante de laboratorio.
 
-El alcance verificado es una VM de laboratorio. Wazuh Ubuntu funciona solo como manager; no incluye indexer ni dashboard. Falco observa el kernel de Ubuntu, no los contenedores de Docker Desktop de Windows. La imagen anterior del portal mantiene el hallazgo de Scout hasta que un nuevo escaneo de la imagen reconstruida demuestre lo contrario. El archivo JSON de Falco requiere vigilancia de tamaño y política de retención. La red y las credenciales de demostración no son una configuración de producción.
+## 7. Anexos
 
-Al integrar este aporte, el integrante 4 debe: (1) conservar la secuencia y la terminología del examen; (2) insertar las figuras 1 y 2 con los pies anteriores; (3) enlazar la matriz RF/RNF a la matriz de riesgos R01–R06; (4) escoger capturas según la guía y trasladarlas por separado; (5) mantener explícitos los estados “verificado”, “parcial” y “diseñado”; (6) unificar la bibliografía y paginación del informe del grupo. La guía de reproducción permite repetir las pruebas sobre otro clon sin distribuir secretos.
+### 7.1. Capturas
 
-## Referencias internas del aporte
+![Figura 3. Alerta real Falco a Wazuh](evidencias/capturas/27-wazuh-alerta-falco-real.png)
 
-- `Examen Parcial.pdf`, documento de caso y requisitos proporcionado para el proyecto; estructura y RF/RNF tomados como referencia.
-- [Arquitectura y diferencias entre entornos](arquitectura-actual.md).
-- [Fases F a I](fase-f-falco-ubuntu.md) y [entrega técnica resumida](entrega-integrante-2.md).
-- [Guía de reproducción](guia-reproduccion.md) y [guía de análisis de imágenes](guia-analisis-evidencias.md).
+**Figura 3.** Wazuh registró la regla 100200, nivel 8, a partir de un evento nuevo de Falco; el portal respondió `ok`.
+
+![Figura 4. Auditoría del portal a Wazuh](evidencias/capturas/28-wazuh-auditoria-ubuntu.png)
+
+**Figura 4.** El manager registró `login_failed` (100100) y `access_denied` (100101); el portal permaneció saludable.
+
+![Figura 5. Estado y recursos de los contenedores](evidencias/capturas/29-ubuntu-arquitectura-integrada.png)
+
+**Figura 5.** Estado simultáneo de cuatro servicios y medición puntual de CPU, memoria y disco.
+
+### 7.2. Código relevante
+
+El despliegue de `ubuntu.compose.yaml` restringe privilegios y memoria del portal:
+
+```yaml
+read_only: true
+cap_drop:
+  - ALL
+security_opt:
+  - no-new-privileges:true
+mem_limit: 256m
+```
+
+`deploy/ubuntu/wazuh-manager.conf` recibe la auditoría JSON:
+
+```xml
+<localfile>
+  <log_format>json</log_format>
+  <location>/var/log/uts/audit.jsonl*</location>
+  <label key="@source">uts-portal</label>
+</localfile>
+```
+
+La regla de `deploy/ubuntu/wazuh-falco-rules.xml` identifica la shell:
+
+```xml
+<rule id="100200" level="8">
+  <decoded_as>json</decoded_as>
+  <field name="rule">^Terminal shell in container$</field>
+  <field name="output">container_name=uts-portal</field>
+</rule>
+```
+
+### 7.3. Trazabilidad
+
+El repositorio conserva diagramas editables, configuraciones, reglas y resultados depurados. La [guía de reproducción](guia-reproduccion.md) permite repetir el prototipo. La [guía de análisis de imágenes](guia-analisis-evidencias.md) identifica lo que demuestra cada captura. El caso y los códigos RF/RNF provienen de `Examen Parcial.pdf`.

@@ -1,6 +1,6 @@
 # Guía del repositorio CWPP UTS
 
-Este repositorio contiene un piloto con datos ficticios. La **VM Ubuntu** reúne portal, PostgreSQL, Falco y Wazuh manager. Las pruebas de **Windows** son una línea histórica separada. El documento para integrar al informe grupal es [informe-integrante-2.md](informe-integrante-2.md); su copia editable está en `entregables/informe-integrante-2.docx`.
+Este repositorio contiene un piloto con datos ficticios. La **VM Ubuntu** reúne portal, PostgreSQL, Falco y Wazuh manager. Las pruebas de **Windows** son una línea histórica separada. El [avance presentable](informe-integrante-2.md) tiene una [copia DOCX](entregables/informe-integrante-2.docx). Las indicaciones para los integrantes 3 y 4 están en el [traspaso](traspaso-integrantes-3-4.md) y su [DOCX](entregables/traspaso-integrantes-3-4.docx).
 
 | Necesidad | Archivo de entrada |
 | --- | --- |
@@ -9,6 +9,7 @@ Este repositorio contiene un piloto con datos ficticios. La **VM Ubuntu** reúne
 | Seleccionar y analizar capturas | [guia-analisis-evidencias.md](guia-analisis-evidencias.md) |
 | Ver el front renovado antes de actualizar la VM | [Inicio](evidencias/prototipo-inicio-nuevo.png) y [acceso](evidencias/prototipo-ingreso-nuevo.png), previsualizaciones aisladas |
 | Integrar la contribución del integrante 2 | [informe-integrante-2.md](informe-integrante-2.md) y [entrega-integrante-2.md](entrega-integrante-2.md) |
+| Coordinar evaluación e informe grupal | [traspaso-integrantes-3-4.md](traspaso-integrantes-3-4.md) |
 | Consultar resultados depurados | `evidencias/*.json`, `evidencias/*.md` |
 | Revisar el despliegue | [deploy/ubuntu/README.md](../deploy/ubuntu/README.md) |
 

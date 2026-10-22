@@ -2,7 +2,7 @@
 
 ## Cómo usarla en el informe grupal
 
-Las capturas originales están en `docs/evidencias/capturas/` **solo en la PC del proyecto** y están excluidas de Git. Los dos diagramas PNG y los resultados JSON depurados sí están versionados. El integrante que prepare el informe debe recibir las capturas locales por un canal acordado, revisar cada una y añadir un pie de figura con: entorno, comando o pantalla, fecha si es visible, resultado observable y límite. No se debe inferir un estado actual a partir de una captura histórica.
+Las capturas originales están en `docs/evidencias/capturas/` **solo en la PC del proyecto** y están excluidas de Git. Los tres diagramas PNG —general, Ubuntu y Windows— y los resultados JSON depurados sí están versionados. El DOCX del avance incorpora copias de las capturas 27–29 como anexo. El integrante que prepare el informe debe recibir las capturas locales por un canal acordado, revisar cada una y añadir un pie de figura con: entorno, comando o pantalla, fecha si es visible, resultado observable y límite. No se debe inferir un estado actual a partir de una captura histórica.
 
 Para cada imagen: (1) lee el comando o URL y el nombre del equipo; (2) identifica el componente; (3) compara el resultado con el JSON o documento de fase; (4) anota si es **estado**, **prueba de regla**, **alerta real**, **métrica puntual** o **diseño**; (5) verifica que no aparezcan contraseñas, `.env`, claves o registros académicos reales. Recorta únicamente elementos privados o irrelevantes y conserva el original local. No alteres números, fechas, estados ni mensajes.
 
