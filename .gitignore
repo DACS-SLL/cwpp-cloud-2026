@@ -5,6 +5,7 @@ credenciales_portal.txt
 __pycache__/
 *.pyc
 dist/
+falco-logs/
 docs/evidencias/capturas/
 security/wazuh/upstream/
 *.pem

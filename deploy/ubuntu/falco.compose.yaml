@@ -6,11 +6,22 @@ services:
     container_name: uts-falco
     restart: unless-stopped
     privileged: true
+    command:
+      - /usr/bin/falco
+      - -o
+      - json_output=true
+      - -o
+      - file_output.enabled=true
+      - -o
+      - file_output.filename=/var/log/falco/events.jsonl
+      - -o
+      - file_output.keep_alive=false
     volumes:
       - /sys/kernel/tracing:/sys/kernel/tracing:ro
       - /var/run/docker.sock:/host/var/run/docker.sock
       - /proc:/host/proc:ro
       - /etc:/host/etc:ro
+      - ./falco-logs:/var/log/falco
     logging:
       driver: json-file
       options:

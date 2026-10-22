@@ -14,6 +14,7 @@ FILES = {
     "scripts/preparar_ubuntu.py": "scripts/preparar_ubuntu.py",
     "scripts/provision_demo_users.py": "scripts/provision_demo_users.py",
     "scripts/smoke_portal.py": "scripts/smoke_portal.py",
+    "scripts/verificar_falco_json.py": "scripts/verificar_falco_json.py",
 }
 
 

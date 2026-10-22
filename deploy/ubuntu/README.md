@@ -52,4 +52,19 @@ sudo docker logs --since=2m uts-falco 2>&1 | grep -F 'container_name=uts-portal'
 
 La segunda línea debe mostrar una alerta `A shell was spawned in a container with an attached terminal` con `command=sh -c echo prueba-falco`. Captura también el resultado de `sudo docker compose -f compose.yaml -f falco.compose.yaml ps -a` para asociar portal y sensor a la misma VM.
 
+### Salida JSON local para la integración con Wazuh
+
+La configuración versionada `deploy/ubuntu/falco.compose.yaml` añade una salida JSON línea por línea en `falco-logs/events.jsonl` y mantiene la salida de Docker. El directorio local está excluido de Git porque las alertas pueden contener comandos y rutas. Después de actualizar el clon en la VM:
+
+```bash
+sudo install -d -m 0700 falco-logs
+sudo docker compose -f compose.yaml -f deploy/ubuntu/falco.compose.yaml config --quiet
+sudo docker logs uts-falco > ~/falco-compose-previo.log 2>&1
+sudo docker compose -f compose.yaml -f deploy/ubuntu/falco.compose.yaml up -d falco
+sudo docker exec -it uts-portal sh -c 'echo prueba-falco-json'
+sudo python3 scripts/verificar_falco_json.py
+```
+
+Usa la ruta versionada `deploy/ubuntu/falco.compose.yaml`; la copia `falco.compose.yaml` extraída anteriormente en la raíz corresponde a la configuración previa. `up -d falco` recrea solo el sensor cuando cambia su configuración. Antes de continuar, verifica que el portal sigue saludable con `curl -fsS http://127.0.0.1:8080/health`. Falco no rota automáticamente su archivo de salida: mantén el piloto supervisado y revisa el tamaño con `sudo du -h falco-logs/events.jsonl`. El siguiente paso será dar acceso de solo lectura a este archivo a Wazuh y validar una regla real; todavía no está conectado.
+
 Conserva los volúmenes: para detener usa `docker compose stop`; no uses `docker compose down -v`. La imagen del portal conserva el hallazgo alto de `zlib` documentado en el escaneo previo; subirla a Docker Hub no corrige esa vulnerabilidad.
