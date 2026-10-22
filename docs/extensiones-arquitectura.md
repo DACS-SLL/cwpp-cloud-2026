@@ -5,8 +5,8 @@ Estado: **diseño propuesto**, no despliegue adicional. El piloto verificado est
 | Entorno | Adaptación de la arquitectura | Telemetría y controles | Límite por resolver |
 | --- | --- | --- | --- |
 | Más máquinas virtuales Linux | Desplegar el portal o las cargas en VMs separadas; mantener identidad de cada host y una ruta de red privada hacia el gestor central. | Sensor Falco en cada kernel Linux que ejecuta las cargas; agente o recolección segura de logs hacia Wazuh; reglas y retención centralizadas. | Capacidad del gestor, certificados, sincronización horaria y operación de agentes en varios hosts. |
-| Kubernetes | Sustituir Compose por Deployments, Services, Secrets y volúmenes persistentes; separar aplicación, base y monitoreo mediante namespaces y políticas de red. | Falco como DaemonSet por nodo Linux para observar contenedores; logs de aplicación y eventos del clúster enviados al analizador; RBAC y admission policies para limitar privilegios. | El despliegue necesita nodos y almacenamiento que este laboratorio no tiene. Las reglas deben evaluarse para reducir ruido y preservar contexto de pod/namespace. |
-| Funciones serverless | Instrumentar funciones y pasarelas de API, con identidad de servicio y secretos gestionados por la plataforma. | Enviar logs de ejecución y auditoría del proveedor al SIEM; analizar dependencias y permisos antes del despliegue. | Falco, que observa syscalls del kernel anfitrión, no ofrece la misma visibilidad cuando el proveedor controla ese kernel. La detección depende de la telemetría disponible en la plataforma. |
+| Kubernetes | Sustituir Compose por Deployments, Services, Secrets y volúmenes persistentes; separar aplicación, base y monitoreo mediante namespaces y políticas de red. | Falco puede ejecutarse en modo DaemonSet por nodo Linux para observar contenedores; logs de aplicación y eventos del clúster se enviarían al analizador; RBAC y políticas de admisión limitarían privilegios. | El despliegue necesita nodos y almacenamiento que este laboratorio no tiene. Las reglas deben evaluarse para reducir ruido y preservar contexto de pod/namespace. |
+| Funciones serverless | Instrumentar funciones y pasarelas de API, con identidad de servicio y secretos gestionados por la plataforma. | Enviar logs de ejecución y auditoría del proveedor al analizador; analizar dependencias y permisos antes del despliegue. | En un servicio gestionado como AWS Lambda no se controla el kernel anfitrión; por inferencia, la detección basada en syscalls de Falco no ofrece la misma visibilidad. Se usarían logs de función y eventos de la plataforma. |
 
 ## Decisiones que se conservan
 
@@ -23,3 +23,10 @@ Estado: **diseño propuesto**, no despliegue adicional. El piloto verificado est
 4. Añadir visualización central, reglas de respuesta y procedimientos operativos después de comprobar la calidad de las señales.
 
 Esta descripción satisface el alcance arquitectónico de VMs, Kubernetes y serverless; no afirma que esas plataformas hayan sido instaladas o probadas.
+
+## Referencias de diseño
+
+- [Falco: despliegue en Kubernetes y DaemonSet](https://falco.org/docs/setup/kubernetes/).
+- [Wazuh: despliegue y agentes en Kubernetes](https://documentation.wazuh.com/current/deployment-options/deploying-with-kubernetes/kubernetes-deployment.html).
+- [Falco: eventos del kernel](https://falco.org/docs/concepts/event-sources/kernel/) y [plugin para CloudTrail](https://falco.org/docs/concepts/event-sources/plugins/cloudtrail/).
+- [AWS Lambda: registros de funciones en CloudWatch](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-logs.html). AWS Lambda es solo un ejemplo de plataforma serverless para la extensión propuesta.

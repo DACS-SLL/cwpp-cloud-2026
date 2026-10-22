@@ -98,6 +98,6 @@ El verificador solo muestra la regla y el marcador de prueba; no imprime el cont
 
 ### Auditoría del portal hacia el mismo manager
 
-El portal ya escribe `audit.jsonl` en el volumen `audit_logs`. El manager puede montarlo en modo de solo lectura y aplicar las reglas `100100`–`100103`, además de la regla Falco `100200`. El procedimiento, permisos y prueba en vivo están en [fase I](../../docs/fase-i-auditoria-wazuh-ubuntu.md). Hasta que esa prueba pase en Ubuntu, considera esta ruta **configurada, no verificada**. Para la copia clonada del repositorio usa siempre `-f compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml`.
+El portal escribe `audit.jsonl` en el volumen `audit_logs`. El manager lo monta en modo de solo lectura y aplica las reglas `100100`–`100103`, además de la regla Falco `100200`. Las alertas nuevas `100100` y `100101` quedaron verificadas en Ubuntu a las 01:39:43 UTC del 22 de octubre de 2026. El procedimiento, permisos, prueba y límites están en [fase I](../../docs/fase-i-auditoria-wazuh-ubuntu.md). Para la copia clonada del repositorio usa siempre `-f compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml`.
 
 Conserva los volúmenes: para detener usa `docker compose stop`; no uses `docker compose down -v`. La imagen del portal conserva el hallazgo alto de `zlib` documentado en el escaneo previo; subirla a Docker Hub no corrige esa vulnerabilidad.

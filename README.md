@@ -15,12 +15,15 @@ La imagen `d4c5g/uts-cwpp-portal:2026-10-21` está publicada en Docker Hub. El p
 - En Ubuntu VirtualBox, el portal y PostgreSQL quedaron saludables y pasó la prueba de los tres roles. Falco 0.45.0 generó dos alertas reales al abrir una shell en el contenedor `uts-portal`.
 - Falco también quedó administrado por Compose en Ubuntu; una alerta nueva de `prueba-falco-compose` confirmó la detección después del cambio y se registró una muestra puntual de recursos.
 - Falco escribe JSON y Wazuh manager 4.14.9 lo procesa en la VM: una alerta real 100200 para `prueba-falco-wazuh` quedó registrada en `alerts.json`; el portal continuó saludable.
+- El mismo Wazuh manager de Ubuntu leyó la auditoría persistente del portal y generó alertas reales 100100 (`login_failed`) y 100101 (`access_denied`) tras una nueva prueba de roles.
 
 Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md), [docs/fase-f-falco-ubuntu.md](docs/fase-f-falco-ubuntu.md) y [docs/fase-g-falco-compose.md](docs/fase-g-falco-compose.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
 
 La [fase H](docs/fase-h-preparacion-wazuh-falco.md) documenta la prueba acotada Falco → Wazuh manager en Ubuntu y su alerta en vivo. Este despliegue no incluye indexer ni dashboard.
 
-Los [dos diagramas actuales](docs/arquitectura-actual.md) distinguen la PC Windows y la VM Ubuntu. La [fase I](docs/fase-i-auditoria-wazuh-ubuntu.md) prepara la lectura de la auditoría del portal por el mismo manager de Ubuntu; requiere validación en vivo antes de atribuirle alertas nuevas.
+Los [dos diagramas actuales](docs/arquitectura-actual.md) distinguen la PC Windows y la VM Ubuntu. La [fase I](docs/fase-i-auditoria-wazuh-ubuntu.md) documenta la lectura de auditoría y las alertas nuevas en el manager de Ubuntu. Las [extensiones a VMs, Kubernetes y serverless](docs/extensiones-arquitectura.md) se describen como diseño futuro, sin atribuirles un despliegue.
+
+La [entrega técnica del integrante 2](docs/entrega-integrante-2.md) reúne arquitectura, componentes, evidencias, límites y pasos de reproducción para el informe grupal.
 
 ## Wazuh
 

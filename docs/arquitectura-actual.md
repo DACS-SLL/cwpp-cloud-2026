@@ -18,7 +18,7 @@ El navegador entra por `localhost:8080` al portal Flask/Gunicorn. El portal cons
 
 VirtualBox usa NAT: Windows accede al portal por `localhost:18080` y a SSH por `localhost:2222`. Dentro de Ubuntu, `uts-portal` y `uts-database` están saludables. PostgreSQL usa el volumen `postgres_data`; el portal escribe auditoría en `audit_logs`. Falco 0.45.0 observa las llamadas al sistema del portal mediante modern BPF y escribe eventos JSON. Wazuh manager 4.14.9 lee esos eventos y registró una alerta real `100200` en `alerts.json`. Las [capturas 24–27](capturas-evidencia.md) y la [fase H](fase-h-preparacion-wazuh-falco.md) documentan la prueba.
 
-La flecha discontinua `audit_logs → Wazuh` indica una **integración configurada que aún requiere prueba en vivo**. Las reglas `100100`–`100103` ya se comprobaron antes en Windows; no se atribuyen todavía alertas nuevas de auditoría al manager de Ubuntu. La VM no ejecuta indexer ni dashboard.
+La ruta `audit_logs → Wazuh` también se validó en Ubuntu: una nueva prueba de roles produjo las alertas reales `100100` (`login_failed`) y `100101` (`access_denied`) a las **01:39:43 UTC del 22 de octubre de 2026**. Las reglas `100102` y `100103` están instaladas, pero solo se probaron con eventos sintéticos en Windows. La [fase I](fase-i-auditoria-wazuh-ubuntu.md) documenta el procedimiento y la evidencia. La VM no ejecuta indexer ni dashboard.
 
 ## Límites de la representación
 
