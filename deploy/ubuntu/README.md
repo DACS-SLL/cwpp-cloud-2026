@@ -22,4 +22,35 @@ sudo docker logs --tail=100 uts-falco 2>&1 | grep -F 'container_name=uts-portal'
 
 Captura `sudo docker compose -f compose.yaml ps -a` y las líneas de alerta con hora y contenedor. Si en el directorio existen tanto `compose.yaml` como `compose.yml`, indica `-f compose.yaml` para evitar que Compose elija uno implícitamente. La prueba y su alcance están en [docs/fase-f-falco-ubuntu.md](../../docs/fase-f-falco-ubuntu.md). Falco en esta VM observa el portal de la VM; no se ha demostrado cobertura del portal en Docker Desktop de Windows.
 
+### Arranque reproducible de Falco
+
+El archivo `falco.compose.yaml` reproduce el despliegue que generó las alertas. Desde el directorio del proyecto en Ubuntu:
+
+```bash
+sudo docker compose -f compose.yaml -f falco.compose.yaml config --quiet
+sudo docker compose -f compose.yaml -f falco.compose.yaml up -d falco
+sudo docker compose -f compose.yaml -f falco.compose.yaml ps -a
+```
+
+Si actualizas una copia clonada con `git pull` y conservas `compose.yaml` en la raíz, usa `-f compose.yaml -f deploy/ubuntu/falco.compose.yaml` en los tres comandos. El ZIP actualizado coloca ambos archivos en la raíz.
+
+Si `uts-falco` ya existe porque se inició manualmente, **antes** de usar Compose guarda su salida y retira solo ese contenedor:
+
+```bash
+sudo docker logs uts-falco > ~/falco-previo.log 2>&1
+sudo docker stop uts-falco
+sudo docker rm uts-falco
+```
+
+`~/falco-previo.log` puede incluir comandos y rutas del sistema: consérvalo fuera del repositorio y revísalo antes de compartirlo. El cambio no toca el portal, PostgreSQL ni sus volúmenes. Falco necesita privilegios elevados y montajes del host para observar el kernel; no atribuyas al sensor las restricciones de seguridad del contenedor del portal. Los montajes y la versión de la imagen siguen la [guía oficial de Falco para contenedores](https://falco.org/docs/setup/container/).
+
+Tras levantar Falco, ejecuta una prueba controlada desde una terminal interactiva:
+
+```bash
+sudo docker exec -it uts-portal sh -c 'echo prueba-falco'
+sudo docker logs --since=2m uts-falco 2>&1 | grep -F 'container_name=uts-portal'
+```
+
+La segunda línea debe mostrar una alerta `A shell was spawned in a container with an attached terminal` con `command=sh -c echo prueba-falco`. Captura también el resultado de `sudo docker compose -f compose.yaml -f falco.compose.yaml ps -a` para asociar portal y sensor a la misma VM.
+
 Conserva los volúmenes: para detener usa `docker compose stop`; no uses `docker compose down -v`. La imagen del portal conserva el hallazgo alto de `zlib` documentado en el escaneo previo; subirla a Docker Hub no corrige esa vulnerabilidad.

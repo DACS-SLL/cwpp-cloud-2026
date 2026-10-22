@@ -1,0 +1,18 @@
+# Se combina con compose.yaml: sudo docker compose -f compose.yaml -f falco.compose.yaml up -d falco
+# Falco observa el kernel de esta VM y obtiene metadatos de contenedores por el socket Docker.
+services:
+  falco:
+    image: falcosecurity/falco:0.45.0
+    container_name: uts-falco
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /etc:/host/etc:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

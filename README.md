@@ -4,7 +4,7 @@ Piloto CWPP local para un portal académico de demostración: Flask/Gunicorn, Po
 
 ## Ejecutar el portal en Ubuntu
 
-La imagen `d4c5g/uts-cwpp-portal:2026-10-21` está publicada en Docker Hub. El paquete de despliegue se genera con `python scripts/paquetizar_ubuntu.py` y queda en `dist/`. Lee [deploy/ubuntu/README.md](deploy/ubuntu/README.md) para instalar Docker Engine dentro de la VM, crear contraseñas locales y arrancar el portal. PostgreSQL usa la imagen oficial `postgres:17-alpine`. El SQL versionado contiene solo identificadores y correos de demostración.
+La imagen `d4c5g/uts-cwpp-portal:2026-10-21` está publicada en Docker Hub. El paquete de despliegue se genera con `python scripts/paquetizar_ubuntu.py` y queda en `dist/`. Lee [deploy/ubuntu/README.md](deploy/ubuntu/README.md) para instalar Docker Engine dentro de la VM, crear contraseñas locales y arrancar el portal y Falco con Compose. PostgreSQL usa la imagen oficial `postgres:17-alpine`. El SQL versionado contiene solo identificadores y correos de demostración.
 
 ## Estado verificado
 

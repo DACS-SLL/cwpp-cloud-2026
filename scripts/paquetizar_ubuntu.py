@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "dist/uts-cwpp-ubuntu-2026-10-21.zip"
 FILES = {
     "deploy/ubuntu/compose.yaml": "compose.yaml",
+    "deploy/ubuntu/falco.compose.yaml": "falco.compose.yaml",
     "deploy/ubuntu/README.md": "README.md",
     "database/init/01_schema.sql": "database/init/01_schema.sql",
     "scripts/preparar_ubuntu.py": "scripts/preparar_ubuntu.py",
