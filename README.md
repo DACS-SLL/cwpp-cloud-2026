@@ -20,6 +20,8 @@ Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md
 
 La [fase H](docs/fase-h-preparacion-wazuh-falco.md) documenta la prueba acotada Falco → Wazuh manager en Ubuntu y su alerta en vivo. Este despliegue no incluye indexer ni dashboard.
 
+Los [dos diagramas actuales](docs/arquitectura-actual.md) distinguen la PC Windows y la VM Ubuntu. La [fase I](docs/fase-i-auditoria-wazuh-ubuntu.md) prepara la lectura de la auditoría del portal por el mismo manager de Ubuntu; requiere validación en vivo antes de atribuirle alertas nuevas.
+
 ## Wazuh
 
 La copia oficial de Wazuh es un repositorio independiente y no se versiona aquí. Ejecuta `powershell -ExecutionPolicy Bypass -File scripts/preparar_wazuh_upstream.ps1` para obtener la etiqueta oficial `v4.14.9` y aplicar los archivos adaptados del directorio `security/wazuh/overrides/`. Los certificados, contraseñas y volúmenes se crean localmente y no se publican. [security/wazuh/README.md](security/wazuh/README.md) explica las pruebas realizadas.

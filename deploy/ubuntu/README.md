@@ -65,7 +65,7 @@ sudo docker exec -it uts-portal sh -c 'echo prueba-falco-json'
 sudo python3 scripts/verificar_falco_json.py
 ```
 
-Usa la ruta versionada `deploy/ubuntu/falco.compose.yaml`; la copia `falco.compose.yaml` extraída anteriormente en la raíz corresponde a la configuración previa. `up -d falco` recrea solo el sensor cuando cambia su configuración. Antes de continuar, verifica que el portal sigue saludable con `curl -fsS http://127.0.0.1:8080/health`. Falco no rota automáticamente su archivo de salida: mantén el piloto supervisado y revisa el tamaño con `sudo du -h falco-logs/events.jsonl`. El siguiente paso será dar acceso de solo lectura a este archivo a Wazuh y validar una regla real; todavía no está conectado.
+Usa la ruta versionada `deploy/ubuntu/falco.compose.yaml`; la copia `falco.compose.yaml` extraída anteriormente en la raíz corresponde a la configuración previa. `up -d falco` recrea solo el sensor cuando cambia su configuración. Antes de continuar, verifica que el portal sigue saludable con `curl -fsS http://127.0.0.1:8080/health`. Falco no rota automáticamente su archivo de salida: mantén el piloto supervisado y revisa el tamaño con `sudo du -h falco-logs/events.jsonl`. La integración Falco → Wazuh manager ya produjo una alerta real `100200` en esta VM; consulta [fase H](../../docs/fase-h-preparacion-wazuh-falco.md).
 
 ### Prueba del manager Wazuh sin indexer ni dashboard
 
@@ -94,6 +94,10 @@ sudo docker exec -it uts-portal sh -c 'echo prueba-falco-wazuh'
 sudo python3 scripts/verificar_wazuh_falco.py
 ```
 
-El verificador solo muestra la regla y el marcador de prueba; no imprime el contenido completo de los registros. El funcionamiento real de este tramo debe confirmarse en la VM antes de atribuir integración Falco → Wazuh al piloto.
+El verificador solo muestra la regla y el marcador de prueba; no imprime el contenido completo de los registros. La regla `100200` para un evento Falco nuevo quedó confirmada en `alerts.json` a las 01:17:48 UTC del 22 de octubre de 2026.
+
+### Auditoría del portal hacia el mismo manager
+
+El portal ya escribe `audit.jsonl` en el volumen `audit_logs`. El manager puede montarlo en modo de solo lectura y aplicar las reglas `100100`–`100103`, además de la regla Falco `100200`. El procedimiento, permisos y prueba en vivo están en [fase I](../../docs/fase-i-auditoria-wazuh-ubuntu.md). Hasta que esa prueba pase en Ubuntu, considera esta ruta **configurada, no verificada**. Para la copia clonada del repositorio usa siempre `-f compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml`.
 
 Conserva los volúmenes: para detener usa `docker compose stop`; no uses `docker compose down -v`. La imagen del portal conserva el hallazgo alto de `zlib` documentado en el escaneo previo; subirla a Docker Hub no corrige esa vulnerabilidad.

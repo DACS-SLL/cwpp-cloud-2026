@@ -1,7 +1,25 @@
-# Arquitectura implementada y verificada
+# Arquitectura del piloto CWPP
 
-![Diagrama de arquitectura del portal UTS](arquitectura-actual.svg)
+Se muestran **dos despliegues del mismo equipo físico**. El de Windows conserva las pruebas iniciales; la VM Ubuntu es el piloto integrado actual. No se atribuye a Falco cobertura sobre los contenedores de Docker Desktop.
 
-**Estado:** portal y base saludables; consultas de 20 estudiantes, 7 cursos y 60 matrículas validadas. Wazuh y Falco aún no forman parte de esta arquitectura. El dashboard y las alertas de seguridad se incorporarán solo después de instalarlos y verificarlos.
+## 1. PC Windows · Docker Desktop
 
-Este diagrama corresponde a la fase inicial en Docker Desktop. Las pruebas posteriores de Wazuh en Windows y de Falco junto al portal en Ubuntu VirtualBox están documentadas en [fase D](fase-d-wazuh.md) y [fase F](fase-f-falco-ubuntu.md). No representa un despliegue conjunto de Wazuh y Falco.
+![Aplicación y pruebas Wazuh en Windows](arquitectura-windows.svg)
+
+[Abrir PNG para el informe](evidencias/arquitectura-windows.png).
+
+El navegador entra por `localhost:8080` al portal Flask/Gunicorn. El portal consulta PostgreSQL por `uts_internal` y escribe auditoría JSON en `audit_logs`. Wazuh 4.14.9 se probó en dos sesiones separadas por el límite de memoria: **manager + indexer** registraron alertas reales `100100` y `100101`; después, **indexer + dashboard** permitieron ingresar a la interfaz con la API del manager desconectada. No se comprobó el stack completo simultáneo ni Falco sobre Docker Desktop. Ver [fase D](fase-d-wazuh.md).
+
+## 2. VM Ubuntu · Docker Engine
+
+![Portal, base, Falco y Wazuh manager en Ubuntu](arquitectura-ubuntu.svg)
+
+[Abrir PNG para el informe](evidencias/arquitectura-ubuntu.png).
+
+VirtualBox usa NAT: Windows accede al portal por `localhost:18080` y a SSH por `localhost:2222`. Dentro de Ubuntu, `uts-portal` y `uts-database` están saludables. PostgreSQL usa el volumen `postgres_data`; el portal escribe auditoría en `audit_logs`. Falco 0.45.0 observa las llamadas al sistema del portal mediante modern BPF y escribe eventos JSON. Wazuh manager 4.14.9 lee esos eventos y registró una alerta real `100200` en `alerts.json`. Las [capturas 24–27](capturas-evidencia.md) y la [fase H](fase-h-preparacion-wazuh-falco.md) documentan la prueba.
+
+La flecha discontinua `audit_logs → Wazuh` indica una **integración configurada que aún requiere prueba en vivo**. Las reglas `100100`–`100103` ya se comprobaron antes en Windows; no se atribuyen todavía alertas nuevas de auditoría al manager de Ubuntu. La VM no ejecuta indexer ni dashboard.
+
+## Límites de la representación
+
+Los diagramas indican componentes y flujos comprobados o expresamente marcados como pendientes. El piloto usa datos y cuentas ficticias. El acceso HTTP y el reenvío NAT son locales; para publicar el servicio fuera del equipo se necesitarían HTTPS y controles de acceso adicionales. El manager, Falco, portal y base comparten recursos de una VM de laboratorio, por lo que esta topología no implica alta disponibilidad.

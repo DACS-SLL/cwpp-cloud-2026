@@ -14,6 +14,7 @@ FILES = [
     ("deploy/ubuntu/wazuh-manager.Dockerfile", "deploy/ubuntu/wazuh-manager.Dockerfile"),
     ("deploy/ubuntu/wazuh-manager.conf", "deploy/ubuntu/wazuh-manager.conf"),
     ("deploy/ubuntu/wazuh-falco-rules.xml", "deploy/ubuntu/wazuh-falco-rules.xml"),
+    ("deploy/ubuntu/wazuh-portal-rules.xml", "deploy/ubuntu/wazuh-portal-rules.xml"),
     ("deploy/ubuntu/README.md", "README.md"),
     ("database/init/01_schema.sql", "database/init/01_schema.sql"),
     ("scripts/preparar_ubuntu.py", "scripts/preparar_ubuntu.py"),
@@ -21,6 +22,7 @@ FILES = [
     ("scripts/smoke_portal.py", "scripts/smoke_portal.py"),
     ("scripts/verificar_falco_json.py", "scripts/verificar_falco_json.py"),
     ("scripts/verificar_wazuh_falco.py", "scripts/verificar_wazuh_falco.py"),
+    ("scripts/verificar_wazuh_portal_ubuntu.py", "scripts/verificar_wazuh_portal_ubuntu.py"),
 ]
 
 

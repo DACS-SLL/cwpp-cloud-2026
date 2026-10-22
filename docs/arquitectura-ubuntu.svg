@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="840" viewBox="0 0 1400 840" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitectura del piloto en Ubuntu VirtualBox</title>
+  <desc id="desc">Windows accede a la VM Ubuntu mediante NAT. Docker Engine ejecuta portal, PostgreSQL, Falco y Wazuh manager. La ruta Falco a Wazuh está validada; la ingesta de auditoría del portal se prepara para verificación.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#476580"/></marker>
+    <style>
+      .bg{fill:#f7fafc}.title{font:700 31px Arial,sans-serif;fill:#192d43}.sub{font:16px Arial,sans-serif;fill:#4a6277}
+      .group{fill:#fff;stroke:#adc3d5;stroke-width:2;rx:20}.card{stroke-width:2;rx:14}.windows{fill:#e5f0ff;stroke:#6691c8}.portal{fill:#e2f5e8;stroke:#5ca279}.db{fill:#fff0dd;stroke:#cc9556}.volume{fill:#f0eaff;stroke:#927cc0}.sensor{fill:#e7f4fa;stroke:#5b9cab}.wazuh{fill:#e4f3f8;stroke:#5c99ac}
+      .h{font:700 19px Arial,sans-serif;fill:#1c3448}.d{font:15px Arial,sans-serif;fill:#355269}.label{font:14px Arial,sans-serif;fill:#4a6277}.line{fill:none;stroke:#476580;stroke-width:3;marker-end:url(#arrow)}.pending{stroke-dasharray:8 6}
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="840"/>
+  <text class="title" x="45" y="55">VM Ubuntu · piloto CWPP</text>
+  <text class="sub" x="45" y="85">Portal, PostgreSQL, Falco y Wazuh manager en el mismo Linux</text>
+  <rect class="card windows" x="35" y="270" width="205" height="145"/>
+  <text class="h" x="138" y="309" text-anchor="middle">PC Windows</text>
+  <text class="d" x="138" y="340" text-anchor="middle">Navegador :18080</text>
+  <text class="d" x="138" y="369" text-anchor="middle">SSH :2222</text>
+  <text class="d" x="138" y="397" text-anchor="middle">VirtualBox NAT</text>
+  <rect class="group" x="280" y="125" width="1080" height="650"/>
+  <text class="h" x="310" y="161">Ubuntu Desktop 22.04 · Docker Engine + Compose</text>
+  <rect class="card portal" x="355" y="235" width="245" height="135"/>
+  <text class="h" x="478" y="275" text-anchor="middle">uts-portal</text>
+  <text class="d" x="478" y="303" text-anchor="middle">Flask · UID 10001</text>
+  <text class="d" x="478" y="330" text-anchor="middle">Puerto 8080 · healthy</text>
+  <rect class="card db" x="710" y="235" width="240" height="135"/>
+  <text class="h" x="830" y="275" text-anchor="middle">uts-database</text>
+  <text class="d" x="830" y="303" text-anchor="middle">PostgreSQL 17</text>
+  <text class="d" x="830" y="330" text-anchor="middle">uts_internal · healthy</text>
+  <rect class="card volume" x="1050" y="235" width="255" height="135"/>
+  <text class="h" x="1178" y="275" text-anchor="middle">postgres_data</text>
+  <text class="d" x="1178" y="303" text-anchor="middle">Volumen persistente</text>
+  <text class="d" x="1178" y="330" text-anchor="middle">Datos simulados</text>
+  <path class="line" d="M240 343 H349"/><path class="line" d="M600 302 H704"/><path class="line" d="M950 302 H1044"/>
+  <text class="label" x="657" y="219" text-anchor="middle">database:5432</text>
+  <rect class="card volume" x="355" y="422" width="245" height="100"/>
+  <text class="h" x="478" y="460" text-anchor="middle">audit_logs</text>
+  <text class="d" x="478" y="488" text-anchor="middle">audit.jsonl · portal</text>
+  <path class="line" d="M478 370 V416"/>
+  <rect class="card sensor" x="355" y="590" width="245" height="110"/>
+  <text class="h" x="478" y="630" text-anchor="middle">uts-falco</text>
+  <text class="d" x="478" y="658" text-anchor="middle">syscall · modern BPF</text>
+  <rect class="card volume" x="710" y="590" width="240" height="110"/>
+  <text class="h" x="830" y="630" text-anchor="middle">events.jsonl</text>
+  <text class="d" x="830" y="658" text-anchor="middle">JSON de Falco</text>
+  <rect class="card wazuh" x="1050" y="535" width="255" height="165"/>
+  <text class="h" x="1178" y="577" text-anchor="middle">Wazuh manager</text>
+  <text class="d" x="1178" y="606" text-anchor="middle">Regla Falco 100200</text>
+  <text class="d" x="1178" y="635" text-anchor="middle">alerts.json persistente</text>
+  <text class="d" x="1178" y="664" text-anchor="middle">Sin indexer/dashboard</text>
+  <path class="line" d="M355 302 H315 V645 H349"/><path class="line" d="M600 645 H704"/><path class="line" d="M950 645 H1044"/>
+  <text class="label" x="340" y="561">syscalls</text>
+  <path class="line pending" d="M600 472 H1178 V529"/>
+  <text class="label" x="882" y="459" text-anchor="middle">Auditoría → Wazuh: preparado, pendiente de prueba</text>
+  <text class="sub" x="45" y="813">Ruta Falco → Wazuh validada con alerta real 100200. La ruta de auditoría se validará en la siguiente fase.</text>
+</svg>
