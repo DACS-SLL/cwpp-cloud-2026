@@ -1,0 +1,33 @@
+{
+  "entorno": "Ubuntu VirtualBox, manager Wazuh sin indexer ni dashboard",
+  "fecha_utc": "2026-10-22",
+  "versiones": {
+    "falco": "0.45.0",
+    "wazuh_manager": "4.14.9"
+  },
+  "regla_reproducida": {
+    "metodo": "wazuh-logtest con JSON Falco previo",
+    "id": "100200",
+    "nivel": 8,
+    "fase": 3
+  },
+  "alerta_en_vivo": {
+    "origen": "Falco, shell controlada en uts-portal",
+    "marcador": "prueba-falco-wazuh",
+    "hora_wazuh_utc": "2026-10-22T01:17:48.556+0000",
+    "regla_id": "100200",
+    "nivel": 8,
+    "archivo": "/var/ossec/logs/alerts/alerts.json"
+  },
+  "portal_despues_de_prueba": {
+    "database": "connected",
+    "status": "ok"
+  },
+  "recursos_muestra_puntual": {
+    "manager_memoria_mib": 114.5,
+    "manager_limite_gib": 1.5,
+    "ubuntu_memoria_disponible_gib": 2.2,
+    "disco_libre_gb": 9.2
+  },
+  "limitacion": "Sin indexer ni dashboard; la muestra de recursos no prueba estabilidad prolongada."
+}
