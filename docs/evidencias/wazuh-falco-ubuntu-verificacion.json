@@ -23,11 +23,21 @@
     "database": "connected",
     "status": "ok"
   },
-  "recursos_muestra_puntual": {
-    "manager_memoria_mib": 114.5,
-    "manager_limite_gib": 1.5,
-    "ubuntu_memoria_disponible_gib": 2.2,
-    "disco_libre_gb": 9.2
-  },
+  "recursos_muestras_puntuales": [
+    {
+      "momento": "unos 35 segundos tras iniciar manager",
+      "manager_memoria_mib": 114.5,
+      "manager_limite_gib": 1.5,
+      "ubuntu_memoria_disponible_gib": 2.2,
+      "disco_libre_gb": 9.2
+    },
+    {
+      "momento": "unos 4 minutos tras reiniciar manager",
+      "manager_memoria_mib": 332,
+      "manager_limite_gib": 1.5,
+      "ubuntu_memoria_disponible_gib": 1.9,
+      "disco_libre_gb": 9.0
+    }
+  ],
   "limitacion": "Sin indexer ni dashboard; la muestra de recursos no prueba estabilidad prolongada."
 }

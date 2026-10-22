@@ -26,7 +26,7 @@ Los archivos `deploy/ubuntu/wazuh-manager.compose.yaml`, `wazuh-manager.conf` y 
 1. `wazuh-analysisd`, `wazuh-logcollector`, `wazuh-remoted`, `wazuh-db` y `wazuh-apid` quedaron activos. Portal y PostgreSQL continuaron saludables, y Falco permaneció activo.
 2. `wazuh-logtest` reprodujo un evento Falco previo. En la fase 3 coincidió la regla **100200**, nivel **8**. Esa reproducción comprobó la regla, no la ingesta en vivo.
 3. Una nueva shell controlada en `uts-portal` produjo el marcador `prueba-falco-wazuh`. `scripts/verificar_wazuh_falco.py` encontró en `/var/ossec/logs/alerts/alerts.json` una alerta real **100200**, nivel **8**, con ese marcador y hora Wazuh **01:17:48.556 UTC**. El portal respondió después `{"database":"connected","status":"ok"}`.
-4. En una muestra tomada tras arrancar Wazuh, el manager consumía **114,5 MiB** de su límite de **1,5 GiB**; Ubuntu tenía **2,2 GiB** de memoria disponible y **9,2 GB** libres en `/`. Son valores puntuales, no promedios ni una garantía de funcionamiento sostenido.
+4. En una muestra tomada unos 35 segundos después de arrancar Wazuh, el manager consumía **114,5 MiB** de su límite de **1,5 GiB**; Ubuntu tenía **2,2 GiB** de memoria disponible y **9,2 GB** libres en `/`. En otra muestra, aproximadamente cuatro minutos después de reiniciar el manager, consumía **332 MiB**, con **1,9 GiB** de memoria disponible y **9,0 GB** de disco libre. Son valores puntuales, no promedios ni una garantía de funcionamiento sostenido.
 
 La evidencia textual depurada está en [wazuh-falco-ubuntu-verificacion.json](evidencias/wazuh-falco-ubuntu-verificacion.json).
 
