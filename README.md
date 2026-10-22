@@ -13,8 +13,9 @@ La imagen `d4c5g/uts-cwpp-portal:2026-10-21` está publicada en Docker Hub. El p
 - Caída controlada de PostgreSQL: HTTP 503 durante la interrupción, HTTP 200 tras recuperar el servicio. Reglas Wazuh 100102/100103 verificadas con eventos sintéticos.
 - Dashboard Wazuh accesible en una sesión separada; el manager figuró desconectado en esa sesión por límite de RAM.
 - En Ubuntu VirtualBox, el portal y PostgreSQL quedaron saludables y pasó la prueba de los tres roles. Falco 0.45.0 generó dos alertas reales al abrir una shell en el contenedor `uts-portal`.
+- Falco también quedó administrado por Compose en Ubuntu; una alerta nueva de `prueba-falco-compose` confirmó la detección después del cambio y se registró una muestra puntual de recursos.
 
-Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md) y [docs/fase-f-falco-ubuntu.md](docs/fase-f-falco-ubuntu.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
+Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md), [docs/fase-f-falco-ubuntu.md](docs/fase-f-falco-ubuntu.md) y [docs/fase-g-falco-compose.md](docs/fase-g-falco-compose.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
 
 ## Wazuh
 

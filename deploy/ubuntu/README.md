@@ -39,10 +39,9 @@ Si `uts-falco` ya existe porque se inició manualmente, **antes** de usar Compos
 ```bash
 sudo docker logs uts-falco > ~/falco-previo.log 2>&1
 sudo docker stop uts-falco
-sudo docker rm uts-falco
 ```
 
-`~/falco-previo.log` puede incluir comandos y rutas del sistema: consérvalo fuera del repositorio y revísalo antes de compartirlo. El cambio no toca el portal, PostgreSQL ni sus volúmenes. Falco necesita privilegios elevados y montajes del host para observar el kernel; no atribuyas al sensor las restricciones de seguridad del contenedor del portal. Los montajes y la versión de la imagen siguen la [guía oficial de Falco para contenedores](https://falco.org/docs/setup/container/).
+Si `docker stop` deja el contenedor creado, ejecuta `sudo docker rm uts-falco`. Si el contenedor manual se inició con `--rm`, Docker lo elimina automáticamente al detenerlo y el comando `rm` no hace falta. Después ejecuta el `up -d falco` indicado arriba. `~/falco-previo.log` puede incluir comandos y rutas del sistema: consérvalo fuera del repositorio y revísalo antes de compartirlo. El cambio no toca el portal, PostgreSQL ni sus volúmenes. Falco necesita privilegios elevados y montajes del host para observar el kernel; no atribuyas al sensor las restricciones de seguridad del contenedor del portal. Los montajes y la versión de la imagen siguen la [guía oficial de Falco para contenedores](https://falco.org/docs/setup/container/).
 
 Tras levantar Falco, ejecuta una prueba controlada desde una terminal interactiva:
 
