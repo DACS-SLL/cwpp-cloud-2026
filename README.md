@@ -1,6 +1,6 @@
 # cwpp-cloud-2026
 
-Piloto CWPP local para un portal académico de demostración: Flask/Gunicorn, PostgreSQL, registros de auditoría, pruebas controladas de Wazuh y preparación de Falco en Ubuntu.
+Piloto CWPP local para un portal académico de demostración: Flask/Gunicorn, PostgreSQL, registros de auditoría, pruebas controladas de Wazuh y detección de Falco en Ubuntu.
 
 ## Ejecutar el portal en Ubuntu
 
@@ -12,9 +12,9 @@ La imagen `d4c5g/uts-cwpp-portal:2026-10-21` está publicada en Docker Hub. El p
 - Auditoría JSON persistente y detección real por Wazuh de `login_failed` (100100) y `access_denied` (100101).
 - Caída controlada de PostgreSQL: HTTP 503 durante la interrupción, HTTP 200 tras recuperar el servicio. Reglas Wazuh 100102/100103 verificadas con eventos sintéticos.
 - Dashboard Wazuh accesible en una sesión separada; el manager figuró desconectado en esa sesión por límite de RAM.
-- Falco pendiente de una prueba real en la VM Ubuntu, con el portal ejecutándose en el mismo kernel.
+- En Ubuntu VirtualBox, el portal y PostgreSQL quedaron saludables y pasó la prueba de los tres roles. Falco 0.45.0 generó dos alertas reales al abrir una shell en el contenedor `uts-portal`.
 
-Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md) y [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
+Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md) y [docs/fase-f-falco-ubuntu.md](docs/fase-f-falco-ubuntu.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
 
 ## Wazuh
 

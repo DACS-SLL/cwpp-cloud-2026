@@ -14,6 +14,12 @@ Para abrir el portal desde Windows con red NAT de VirtualBox: **Configuración d
 
 ## Evidencia de Falco
 
-Falco debe instalarse y ejecutarse **en esta misma VM**. Una vez que el portal esté saludable, provoca un evento de prueba controlado en `uts-portal` y verifica que la salida de Falco mencione ese contenedor. Captura `docker compose ps -a` y la alerta real con nombre de regla, hora y contenedor. Un Falco instalado en otra VM o en Windows no demuestra cobertura de este portal.
+Falco 0.45.0 se ejecutó **en esta misma VM** y observó dos aperturas de shell en `uts-portal`, incluida la prueba `sh -c echo prueba-falco`. El log atribuyó ambas al contenedor y a la imagen del portal. Para volver a consultar las alertas:
+
+```bash
+sudo docker logs --tail=100 uts-falco 2>&1 | grep -F 'container_name=uts-portal'
+```
+
+Captura `sudo docker compose -f compose.yaml ps -a` y las líneas de alerta con hora y contenedor. Si en el directorio existen tanto `compose.yaml` como `compose.yml`, indica `-f compose.yaml` para evitar que Compose elija uno implícitamente. La prueba y su alcance están en [docs/fase-f-falco-ubuntu.md](../../docs/fase-f-falco-ubuntu.md). Falco en esta VM observa el portal de la VM; no se ha demostrado cobertura del portal en Docker Desktop de Windows.
 
 Conserva los volúmenes: para detener usa `docker compose stop`; no uses `docker compose down -v`. La imagen del portal conserva el hallazgo alto de `zlib` documentado en el escaneo previo; subirla a Docker Hub no corrige esa vulnerabilidad.

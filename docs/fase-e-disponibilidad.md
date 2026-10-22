@@ -1,5 +1,7 @@
 # Fase E: caída controlada de PostgreSQL y evaluación de Falco
 
+> Estado histórico de la fase E. Falco se desplegó después en la VM Ubuntu y detectó eventos reales del portal de esa VM. Ver [fase F](fase-f-falco-ubuntu.md).
+
 Fecha: 21 de octubre de 2026 (UTC). Todas las pruebas se ejecutaron en este mismo equipo.
 
 ## RF-06: disponibilidad y recuperación
