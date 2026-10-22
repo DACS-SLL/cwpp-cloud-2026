@@ -7,7 +7,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "dist/uts-cwpp-ubuntu-2026-10-21.zip"
 FILES = [
-    ("deploy/ubuntu/compose.yaml", "compose.yaml"),
+    ("ubuntu.compose.yaml", "compose.yaml"),
     ("deploy/ubuntu/falco.compose.yaml", "falco.compose.yaml"),
     ("deploy/ubuntu/falco.compose.yaml", "deploy/ubuntu/falco.compose.yaml"),
     ("deploy/ubuntu/wazuh-manager.compose.yaml", "deploy/ubuntu/wazuh-manager.compose.yaml"),
@@ -16,6 +16,14 @@ FILES = [
     ("deploy/ubuntu/wazuh-falco-rules.xml", "deploy/ubuntu/wazuh-falco-rules.xml"),
     ("deploy/ubuntu/wazuh-portal-rules.xml", "deploy/ubuntu/wazuh-portal-rules.xml"),
     ("deploy/ubuntu/README.md", "README.md"),
+    ("app/backend/Dockerfile", "app/backend/Dockerfile"),
+    ("app/backend/requirements.txt", "app/backend/requirements.txt"),
+    ("app/backend/app.py", "app/backend/app.py"),
+    ("app/backend/templates/base.html", "app/backend/templates/base.html"),
+    ("app/backend/templates/index.html", "app/backend/templates/index.html"),
+    ("app/backend/templates/login.html", "app/backend/templates/login.html"),
+    ("app/backend/templates/tabla.html", "app/backend/templates/tabla.html"),
+    ("app/backend/static/style.css", "app/backend/static/style.css"),
     ("database/init/01_schema.sql", "database/init/01_schema.sql"),
     ("scripts/preparar_ubuntu.py", "scripts/preparar_ubuntu.py"),
     ("scripts/provision_demo_users.py", "scripts/provision_demo_users.py"),
@@ -26,12 +34,15 @@ FILES = [
     ("docs/fase-f-falco-ubuntu.md", "docs/fase-f-falco-ubuntu.md"),
     ("docs/fase-h-preparacion-wazuh-falco.md", "docs/fase-h-preparacion-wazuh-falco.md"),
     ("docs/fase-i-auditoria-wazuh-ubuntu.md", "docs/fase-i-auditoria-wazuh-ubuntu.md"),
+    ("docs/guia-reproduccion.md", "docs/guia-reproduccion.md"),
     ("docs/evidencias/wazuh-falco-ubuntu-verificacion.json", "docs/evidencias/wazuh-falco-ubuntu-verificacion.json"),
     ("docs/evidencias/wazuh-portal-ubuntu-verificacion.json", "docs/evidencias/wazuh-portal-ubuntu-verificacion.json"),
 ]
 
 
 def main():
+    if (ROOT / "ubuntu.compose.yaml").read_bytes() != (ROOT / "deploy/ubuntu/compose.yaml").read_bytes():
+        raise SystemExit("Los dos archivos Compose base de Ubuntu difieren; sincronízalos antes de empaquetar.")
     OUTPUT.parent.mkdir(exist_ok=True)
     with ZipFile(OUTPUT, "w", compression=ZIP_DEFLATED) as archive:
         for source, destination in FILES:

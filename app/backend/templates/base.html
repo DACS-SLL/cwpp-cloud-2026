@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10263b">
+  <title>{% block title %}Portal académico UTS{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="Portal académico UTS, inicio">
+        <span class="brand-mark" aria-hidden="true">U<span>·</span></span>
+        <span class="brand-copy"><strong>UTS</strong><small>Portal académico</small></span>
+      </a>
+      <nav class="header-nav" aria-label="Navegación principal">
+        <a href="{{ url_for('index') }}">Inicio</a>
+        {% if session.get('user') %}
+          <a href="{{ url_for('cursos') }}">Cursos</a>
+          <a href="{{ url_for('matriculas') }}">Matrículas</a>
+          {% if session['role'] in ('docente', 'administrador') %}<a href="{{ url_for('estudiantes') }}">Estudiantes</a>{% endif %}
+        {% endif %}
+      </nav>
+      <div class="header-action">
+        {% if session.get('user') %}
+          <span class="user-chip"><span class="user-dot" aria-hidden="true"></span>{{ session['user'] }}</span>
+          <form method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <button class="text-button" type="submit">Salir</button>
+          </form>
+        {% else %}
+          <a class="header-login" href="{{ url_for('login') }}">Ingresar <span aria-hidden="true">↗</span></a>
+        {% endif %}
+      </div>
+    </header>
+    <main id="contenido" class="page-main">{% block content %}{% endblock %}</main>
+    <footer class="site-footer">
+      <span>Universidad Tecnológica del Sur <span class="footer-separator">/</span> Entorno de demostración</span>
+      <a href="{{ url_for('health') }}">Estado del servicio <span aria-hidden="true">↗</span></a>
+    </footer>
+  </div>
+</body>
+</html>

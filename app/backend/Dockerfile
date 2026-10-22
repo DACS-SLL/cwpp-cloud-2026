@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 COPY templates ./templates
+COPY static ./static
 
 RUN groupadd --system --gid 10001 uts && useradd --uid 10001 --gid uts --no-create-home uts \
     && install -d -o uts -g uts -m 0750 /var/log/uts

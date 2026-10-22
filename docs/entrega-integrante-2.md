@@ -1,11 +1,13 @@
 # Entrega técnica del integrante 2 · arquitectura e implementación
 
+El [informe editable para el integrante 4](entregables/informe-integrante-2.docx) sigue la estructura de `Examen Parcial.pdf`. Su [fuente Markdown](informe-integrante-2.md), la [guía de reproducción](guia-reproduccion.md) y la [guía de análisis de imágenes](guia-analisis-evidencias.md) reúnen el material de traspaso.
+
 ## Alcance entregado
 
 | Responsabilidad | Implementación y evidencia |
 | --- | --- |
 | Arquitectura lógica y física | [Dos diagramas separados](arquitectura-actual.md): PC Windows con pruebas iniciales y VM Ubuntu con el piloto integrado. SVG editables y PNG para el informe. |
-| Infraestructura reproducible | [Compose de Ubuntu](../deploy/ubuntu/compose.yaml), [Falco](../deploy/ubuntu/falco.compose.yaml) y [Wazuh manager](../deploy/ubuntu/wazuh-manager.compose.yaml); [guía de despliegue](../deploy/ubuntu/README.md) y ZIP local generado con `scripts/paquetizar_ubuntu.py`. |
+| Infraestructura reproducible | [Compose raíz para clon Git](../ubuntu.compose.yaml), [Falco](../deploy/ubuntu/falco.compose.yaml) y [Wazuh manager](../deploy/ubuntu/wazuh-manager.compose.yaml); [guía de reproducción](guia-reproduccion.md) y ZIP local generado con `scripts/paquetizar_ubuntu.py`. |
 | Portal y base de datos | Flask/Gunicorn y PostgreSQL 17 en contenedores separados; volumen de datos persistente; cuentas y registros ficticios; prueba de tres roles y endpoints de salud. |
 | Seguridad de los contenedores | Portal con UID 10001, raíz de solo lectura, `cap_drop: ALL`, `no-new-privileges` y límites. Falco necesita privilegios y acceso al kernel de la misma VM; esas restricciones no se atribuyen a Falco. |
 | Recolección de eventos | Portal escribe auditoría JSON en `audit_logs`; Falco escribe JSON en `falco-logs/events.jsonl`. El manager de Ubuntu monta ambos en solo lectura y conserva `alerts.json` en volumen. |

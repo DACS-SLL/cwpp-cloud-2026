@@ -21,7 +21,8 @@ services:
       retries: 5
 
   portal:
-    image: d4c5g/uts-cwpp-portal:2026-10-21
+    build: ./app/backend
+    image: uts-cwpp-portal:local
     container_name: uts-portal
     restart: unless-stopped
     read_only: true

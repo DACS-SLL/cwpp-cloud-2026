@@ -1,16 +1,20 @@
 # Portal UTS en Ubuntu VirtualBox
 
-Este paquete inicia el mismo portal de prueba y PostgreSQL **dentro de Ubuntu**. La imagen del portal se descarga de Docker Hub: `d4c5g/uts-cwpp-portal:2026-10-21` (`linux/amd64`). El archivo SQL incluido inicializa datos de demostración en un volumen nuevo; **no** copia los datos ni las contraseñas del Windows original.
+Este paquete inicia el mismo portal de prueba y PostgreSQL **dentro de Ubuntu**. El portal se construye desde `app/backend` del repositorio o ZIP y se etiqueta `uts-cwpp-portal:local`; así la interfaz y el código corresponden al commit usado. La imagen anterior `d4c5g/uts-cwpp-portal:2026-10-21` queda como referencia histórica de las pruebas previas. El archivo SQL incluido inicializa datos de demostración en un volumen nuevo; **no** copia los datos ni las contraseñas del Windows original.
+
+Esta guía describe principalmente el **ZIP**, donde el archivo base se llama `compose.yaml`. En un **clon Git nuevo** usa el archivo versionado `ubuntu.compose.yaml` en su lugar y sigue [la guía completa de reproducción](../../docs/guia-reproduccion.md). En un clon antiguo puede existir un `compose.yaml` local extraído del ZIP; el archivo `ubuntu.compose.yaml` actualizado evita sobrescribirlo y es el que debe usarse para el front nuevo.
 
 ## Arranque
 
 1. Instala Ubuntu Server y Docker Engine con el complemento Compose en la VM. Usa la [guía oficial de Docker para Ubuntu](https://docs.docker.com/engine/install/ubuntu/). No uses Docker Desktop de Windows como motor de esta VM.
 2. Copia y descomprime este ZIP en Ubuntu. Entra al directorio que contiene `compose.yaml`.
 3. Ejecuta `python3 scripts/preparar_ubuntu.py`. Genera `.env` y `credenciales_portal.txt` **solo dentro de Ubuntu**. No publiques ni captures esos archivos.
-4. Ejecuta `docker compose config --quiet`, `docker compose pull` y `docker compose up -d`.
+4. Ejecuta `docker compose config --quiet`, `docker compose pull database` y `docker compose up -d --build`.
 5. Espera a que `docker compose ps -a` muestre `uts-database` y `uts-portal` como `healthy`. Comprueba `curl -fsS http://127.0.0.1:8080/health` dentro de Ubuntu y ejecuta `python3 scripts/smoke_portal.py`.
 
 Para abrir el portal desde Windows con red NAT de VirtualBox: **Configuración de la VM → Red → Adaptador 1 → NAT → Avanzadas → Reenvío de puertos**. Añade TCP, IP anfitrión `127.0.0.1`, puerto anfitrión `18080`, puerto invitado `8080`. Después abre `http://localhost:18080` en Windows. La comprobación de `smoke_portal.py` se ejecuta dentro de Ubuntu y usa el puerto 8080 interno.
+
+Para actualizar **solo la interfaz** de una instalación existente en el clon Git, primero guarda cualquier cambio local, ejecuta `git pull --ff-only` y luego `sudo docker compose -f ubuntu.compose.yaml up -d --build --no-deps portal`. En el ZIP usa `-f compose.yaml`. Espera a que `uts-portal` esté `healthy` y ejecuta `sudo python3 scripts/smoke_portal.py` y `curl -fsS http://127.0.0.1:8080/health`. Este comando reconstruye y recrea el contenedor del portal; los volúmenes `postgres_data` y `audit_logs` permanecen. Falco observará ese reinicio y la nueva etiqueta de imagen en eventos posteriores. Las capturas previas corresponden al despliegue anterior y no se deben presentar como prueba visual de esta interfaz.
 
 ## Evidencia de Falco
 
