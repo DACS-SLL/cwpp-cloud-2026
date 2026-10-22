@@ -1,0 +1,24 @@
+# Se combina con compose.yaml; solo el manager procesa el JSON de Falco.
+services:
+  wazuh_manager:
+    build:
+      context: .
+      dockerfile: deploy/ubuntu/wazuh-manager.Dockerfile
+    image: uts-cwpp/wazuh-manager-lab:4.14.9
+    container_name: uts-wazuh-manager
+    restart: "no"
+    mem_limit: 1536m
+    pids_limit: 512
+    volumes:
+      - ./deploy/ubuntu/wazuh-manager.conf:/wazuh-config-mount/etc/ossec.conf:ro
+      - ./deploy/ubuntu/wazuh-falco-rules.xml:/wazuh-config-mount/etc/rules/uts_falco_rules.xml:ro
+      - ./falco-logs:/var/log/falco:ro
+      - wazuh_manager_logs:/var/ossec/logs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  wazuh_manager_logs:

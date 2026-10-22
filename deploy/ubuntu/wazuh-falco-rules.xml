@@ -1,0 +1,9 @@
+<group name="uts,falco,">
+  <rule id="100200" level="8">
+    <decoded_as>json</decoded_as>
+    <field name="rule">^Terminal shell in container$</field>
+    <field name="output">container_name=uts-portal</field>
+    <description>UTS: Falco detectó una shell interactiva en el portal de Ubuntu.</description>
+    <group>process_monitoring,</group>
+  </rule>
+</group>

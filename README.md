@@ -17,6 +17,8 @@ La imagen `d4c5g/uts-cwpp-portal:2026-10-21` está publicada en Docker Hub. El p
 
 Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md), [docs/fase-f-falco-ubuntu.md](docs/fase-f-falco-ubuntu.md) y [docs/fase-g-falco-compose.md](docs/fase-g-falco-compose.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
 
+La [fase H](docs/fase-h-preparacion-wazuh-falco.md) prepara una prueba acotada Falco → Wazuh manager en Ubuntu. La salida JSON de Falco está verificada; la alerta Wazuh de esa ruta todavía requiere prueba en vivo.
+
 ## Wazuh
 
 La copia oficial de Wazuh es un repositorio independiente y no se versiona aquí. Ejecuta `powershell -ExecutionPolicy Bypass -File scripts/preparar_wazuh_upstream.ps1` para obtener la etiqueta oficial `v4.14.9` y aplicar los archivos adaptados del directorio `security/wazuh/overrides/`. Los certificados, contraseñas y volúmenes se crean localmente y no se publican. [security/wazuh/README.md](security/wazuh/README.md) explica las pruebas realizadas.

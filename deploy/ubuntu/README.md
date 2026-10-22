@@ -67,4 +67,33 @@ sudo python3 scripts/verificar_falco_json.py
 
 Usa la ruta versionada `deploy/ubuntu/falco.compose.yaml`; la copia `falco.compose.yaml` extraída anteriormente en la raíz corresponde a la configuración previa. `up -d falco` recrea solo el sensor cuando cambia su configuración. Antes de continuar, verifica que el portal sigue saludable con `curl -fsS http://127.0.0.1:8080/health`. Falco no rota automáticamente su archivo de salida: mantén el piloto supervisado y revisa el tamaño con `sudo du -h falco-logs/events.jsonl`. El siguiente paso será dar acceso de solo lectura a este archivo a Wazuh y validar una regla real; todavía no está conectado.
 
+### Prueba del manager Wazuh sin indexer ni dashboard
+
+La VM no tiene los recursos mínimos del stack oficial completo. El archivo `deploy/ubuntu/wazuh-manager.compose.yaml` permite una **prueba acotada del manager** en la misma VM, sin puertos publicados. Su imagen deriva de `wazuh/wazuh-manager:4.14.9` y omite Filebeat porque no se despliega un indexer. El manager lee el archivo JSON de Falco en modo de solo lectura y aplica la regla local `100200`. Preparación:
+
+```bash
+sudo chgrp 999 falco-logs falco-logs/events.jsonl
+sudo chmod 2750 falco-logs
+sudo chmod 640 falco-logs/events.jsonl
+sudo docker compose -f compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml config --quiet
+sudo docker compose -f compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml up -d --build wazuh_manager
+```
+
+El grupo `999` corresponde al grupo `wazuh` en esta versión de la imagen; los permisos permiten leer el archivo sin hacerlo público para otros usuarios de la VM. Antes de activar Wazuh, comprueba que sigan quedando varios GiB libres en disco y memoria; si el manager presiona el sistema, detenlo con `sudo docker compose -f compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml stop wazuh_manager`. Esto conserva los volúmenes y deja el portal y Falco funcionando.
+
+Cuando el manager esté listo, valida primero la regla con una línea Falco ya registrada:
+
+```bash
+sudo grep -F 'prueba-falco-json' falco-logs/events.jsonl | tail -n 1 | sudo docker exec -i uts-wazuh-manager /var/ossec/bin/wazuh-logtest
+```
+
+Esa es una **prueba de regla por reproducción**, no una alerta recibida en vivo. Para la evidencia real, genera un nuevo evento después de arrancar el manager y comprueba `alerts.json`:
+
+```bash
+sudo docker exec -it uts-portal sh -c 'echo prueba-falco-wazuh'
+sudo python3 scripts/verificar_wazuh_falco.py
+```
+
+El verificador solo muestra la regla y el marcador de prueba; no imprime el contenido completo de los registros. El funcionamiento real de este tramo debe confirmarse en la VM antes de atribuir integración Falco → Wazuh al piloto.
+
 Conserva los volúmenes: para detener usa `docker compose stop`; no uses `docker compose down -v`. La imagen del portal conserva el hallazgo alto de `zlib` documentado en el escaneo previo; subirla a Docker Hub no corrige esa vulnerabilidad.

@@ -33,6 +33,8 @@ Como evidencia de las fases previas, puedes capturar `docker volume ls --filter 
 
 **Siguiente evidencia (`24-falco-json-local.png`):** tras actualizar Falco con la salida JSON, ejecuta `sudo python3 scripts/verificar_falco_json.py`. Captura sus campos `Hora UTC`, `Regla`, `Prioridad`, `Contenedor` y `Archivo JSON`; este resultado prueba que Falco escribió un evento parseable en el archivo local. No lo rotules como alerta de Wazuh hasta que el manager lo procese y genere su propia alerta.
 
+La [fase H](fase-h-preparacion-wazuh-falco.md) especifica las capturas posteriores `25` a `27` para el manager de prueba. La **27** solo se puede rotular como integración confirmada si aparece la regla Wazuh `100200` para un evento Falco nuevo en `alerts.json`.
+
 La preparación de Wazuh ya permite una captura adicional: en PowerShell muestra `docker info --format '{{.MemTotal}}'` (valor actual: `9371779072`) y `docker run --rm alpine:3.20 cat /proc/sys/vm/max_map_count` (valor: `262144`). Para documentar los certificados, en `security/wazuh/upstream/single-node` ejecuta `Get-ChildItem config/wazuh_indexer_ssl_certs -Name` y captura **solo los nombres**, sin abrir los archivos `*-key.pem` ni `root-ca.key`. Estos datos muestran requisitos previos, no funcionamiento de Wazuh.
 
 La prueba controlada ya generó dos alertas reales. Abre `docs/evidencias/wazuh-alertas-verificadas.json` y captura las reglas `100100` y `100101` con sus fechas y eventos. La captura aportada del dashboard está guardada en `docs/evidencias/capturas/15-dashboard-api-offline.png`: demuestra ingreso a la interfaz y muestra que la API del manager estaba offline. No la presentes como evidencia de monitoreo completo. Lee `docs/fase-d-wazuh.md` para describir el alcance.
