@@ -18,6 +18,8 @@ sudo docker compose -f ubuntu.compose.yaml config --quiet
 
 `preparar_ubuntu.py` crea `.env` y `credenciales_portal.txt` con permisos restringidos y se niega a sobrescribirlos. Estos archivos están excluidos de Git. En un clon usado, conserva sus valores existentes; para actualizar código usa `git pull --ff-only` solo después de revisar cambios locales.
 
+Si recibiste el ZIP del prototipo, descomprímelo en Ubuntu y entra en esa carpeta. Los siguientes comandos usan las mismas rutas del clon; omite `git clone` y `git pull`.
+
 ## 2. Construir el portal y levantar PostgreSQL
 
 ```bash
@@ -28,7 +30,7 @@ curl -fsS http://127.0.0.1:8080/health
 python3 scripts/smoke_portal.py
 ```
 
-Espera los estados `healthy` de `uts-database` y `uts-portal`. El verificador utiliza las cuentas locales y confirma los tres roles, recuentos de demostración, denegación de acceso y salida. El portal se construye desde `app/backend` y se etiqueta `uts-cwpp-portal:local`; el viejo tag de Docker Hub se conserva solo como registro de pruebas anteriores. En un clon usa `-f ubuntu.compose.yaml` para no seleccionar `compose.yml` de Windows. En el ZIP, el mismo archivo base se llama `compose.yaml`, así que sustituye el nombre en los comandos si trabajas desde el ZIP.
+Espera los estados `healthy` de `uts-database` y `uts-portal`. El verificador utiliza las cuentas locales y confirma los tres roles, recuentos de demostración, denegación de acceso y salida. El portal se construye desde `app/backend` y se etiqueta `uts-cwpp-portal:local`. Tanto el clon como el ZIP usan `ubuntu.compose.yaml`.
 
 Para acceder desde Windows con VirtualBox NAT, añade reenvío TCP anfitrión `127.0.0.1:18080` → invitado `8080`; luego abre `http://localhost:18080`. El puerto 2222 → 22 se usó para SSH. Configura los reenvíos desde VirtualBox; no abras el portal a una red pública.
 
@@ -79,7 +81,7 @@ curl -fsS http://127.0.0.1:8080/health
 
 El primer verificador debe localizar en `alerts.json` la regla **100200** originada por Falco. El segundo genera accesos de prueba y debe localizar alertas **100100** (`login_failed`) y **100101** (`access_denied`) posteriores a su inicio. Los códigos 100102/100103 están configurados, pero necesitan una prueba de caída aparte para reclamar una alerta en vivo. `data_access` es auditoría del portal, no auditoría interna de PostgreSQL.
 
-## 6. Actualizar, detener y recopilar evidencia
+## 6. Actualizar y detener
 
 Para actualizar el front desde un commit nuevo sin reconstruir los otros servicios:
 
@@ -91,4 +93,4 @@ curl -fsS http://127.0.0.1:8080/health
 sudo python3 scripts/smoke_portal.py
 ```
 
-La primera prueba de un cambio de interfaz puede generar nuevos eventos Falco por la recreación del contenedor. Toma capturas solo después de verificar estado y fecha. Para detener sin borrar datos usa `sudo docker compose -f ubuntu.compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml stop`. **No ejecutes `down -v`**, pues elimina volúmenes persistentes. Revisa `sudo du -h falco-logs/events.jsonl`; ese archivo no rota automáticamente. Sigue [la guía de evidencias](guia-analisis-evidencias.md) antes de compartir capturas.
+La recreación del portal puede generar nuevos eventos Falco. Para detener sin borrar datos usa `sudo docker compose -f ubuntu.compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml stop`. `down -v` elimina los volúmenes persistentes. Revisa periódicamente el tamaño de `falco-logs/events.jsonl` con `sudo du -h`; ese archivo no rota automáticamente.

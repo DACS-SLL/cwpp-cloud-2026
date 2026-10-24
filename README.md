@@ -1,49 +1,42 @@
-# cwpp-cloud-2026
+# Prototipo CWPP UTS
 
-Piloto CWPP local para un portal académico de demostración: Flask/Gunicorn, PostgreSQL, registros de auditoría, pruebas controladas de Wazuh y detección de Falco en Ubuntu. El caso institucional y sus datos son ficticios.
+Portal académico de demostración con Flask, PostgreSQL, Falco y Wazuh manager en una VM Ubuntu. Todos los datos académicos y usuarios son ficticios. El despliegue de Wazuh incluye solo el manager: no incluye indexer ni dashboard.
 
-## Empezar por aquí
+![Arquitectura del prototipo](docs/arquitectura-ubuntu.svg)
 
-| Si necesitas... | Lee... |
-| --- | --- |
-| Presentar el avance del integrante 2 | [Informe editable](docs/entregables/informe-integrante-2.docx) y [fuente Markdown](docs/informe-integrante-2.md) |
-| Coordinar con integrantes 3 y 4 | [Traspaso editable](docs/entregables/traspaso-integrantes-3-4.docx) y [fuente](docs/traspaso-integrantes-3-4.md) |
-| Reproducirlo en otra VM | [Guía de reproducción](docs/guia-reproduccion.md) |
-| Seleccionar y explicar capturas | [Guía de análisis de evidencias](docs/guia-analisis-evidencias.md) |
-| Ver el mapa de carpetas y documentos | [Índice de docs](docs/README.md) |
-| Entender las topologías | [Arquitectura general, Windows y Ubuntu](docs/arquitectura-actual.md) |
+## Contenido
 
-Para recrear ambos DOCX tras editar sus fuentes, usa `python scripts/generar_informe_integrante_2.py` con `python-docx` y revisa los resultados en Word. Las capturas originales y las credenciales son locales y no se publican en Git.
+- `app/backend/`: aplicación, interfaz y Dockerfile del portal.
+- `database/init/`: esquema y datos de demostración.
+- `ubuntu.compose.yaml`: portal, PostgreSQL, redes y volúmenes.
+- `deploy/ubuntu/`: configuración Compose de Falco y Wazuh, reglas y Dockerfile del manager.
+- `scripts/`: preparación local, empaquetado y verificadores funcionales.
+- `docs/guia-reproduccion.md`: instalación y validación paso a paso.
 
-En un **clon Git** usa siempre `-f ubuntu.compose.yaml` como configuración base de Ubuntu. El ZIP generado contiene esa misma configuración con el nombre `compose.yaml` en su raíz. `compose.yml` en la raíz conserva el piloto histórico de Windows; elegir `-f` evita ambigüedades.
+## Inicio rápido en Ubuntu
 
-## Ejecutar el portal en Ubuntu
+Requiere Docker Engine con el complemento Compose, Python 3, Git y acceso a Internet en la primera construcción. Revisa memoria y disco con `free -h` y `df -h /` antes de arrancar Wazuh.
 
-El portal se construye ahora desde `app/backend` del mismo commit y se etiqueta `uts-cwpp-portal:local` en Ubuntu; `d4c5g/uts-cwpp-portal:2026-10-21` es la imagen usada en las pruebas históricas. El paquete de despliegue se genera con `python scripts/paquetizar_ubuntu.py` y queda en `dist/`. Lee [deploy/ubuntu/README.md](deploy/ubuntu/README.md) para instalar Docker Engine dentro de la VM, crear contraseñas locales y arrancar el portal y Falco con Compose. PostgreSQL usa `postgres:17-alpine`. El SQL versionado contiene solo datos de demostración.
+```bash
+git clone https://github.com/DACS-SLL/cwpp-cloud-2026.git
+cd cwpp-cloud-2026
+python3 scripts/preparar_ubuntu.py
+sudo docker compose -f ubuntu.compose.yaml up -d --build
+sudo docker compose -f ubuntu.compose.yaml ps -a
+curl -fsS http://127.0.0.1:8080/health
+python3 scripts/smoke_portal.py
+```
 
-## Estado verificado
+La preparación genera `.env` y `credenciales_portal.txt` solo en el equipo local. Ambos quedan fuera de Git. Para activar Falco, conectar las dos fuentes con Wazuh y comprobar las reglas 100100, 100101 y 100200, sigue la [guía de reproducción](docs/guia-reproduccion.md).
 
-- Portal y PostgreSQL saludables; cuentas de tres roles, 20 estudiantes de prueba, 7 cursos y 60 matrículas comprobados.
-- Auditoría JSON persistente y detección real por Wazuh de `login_failed` (100100) y `access_denied` (100101).
-- Caída controlada de PostgreSQL: HTTP 503 durante la interrupción, HTTP 200 tras recuperar el servicio. Reglas Wazuh 100102/100103 verificadas con eventos sintéticos.
-- Dashboard Wazuh accesible en una sesión separada; el manager figuró desconectado en esa sesión por límite de RAM.
-- En Ubuntu VirtualBox, el portal y PostgreSQL quedaron saludables y pasó la prueba de los tres roles. Falco 0.45.0 generó dos alertas reales al abrir una shell en el contenedor `uts-portal`.
-- Falco también quedó administrado por Compose en Ubuntu; una alerta nueva de `prueba-falco-compose` confirmó la detección después del cambio y se registró una muestra puntual de recursos.
-- Falco escribe JSON y Wazuh manager 4.14.9 lo procesa en la VM: una alerta real 100200 para `prueba-falco-wazuh` quedó registrada en `alerts.json`; el portal continuó saludable.
-- El mismo Wazuh manager de Ubuntu leyó la auditoría persistente del portal y generó alertas reales 100100 (`login_failed`) y 100101 (`access_denied`) tras una nueva prueba de roles.
+El portal escucha en el puerto 8080 de la VM. Con VirtualBox NAT, un reenvío local `127.0.0.1:18080` → `8080` permite abrirlo desde Windows en `http://localhost:18080`.
 
-Lee [docs/fase-d-wazuh.md](docs/fase-d-wazuh.md), [docs/fase-e-disponibilidad.md](docs/fase-e-disponibilidad.md), [docs/fase-f-falco-ubuntu.md](docs/fase-f-falco-ubuntu.md) y [docs/fase-g-falco-compose.md](docs/fase-g-falco-compose.md) para conocer el alcance y las limitaciones. Las capturas originales permanecen solo en el equipo local; el repositorio incluye evidencias textuales depuradas.
+## Archivos generados
 
-La [fase H](docs/fase-h-preparacion-wazuh-falco.md) documenta la prueba acotada Falco → Wazuh manager en Ubuntu y su alerta en vivo. Este despliegue no incluye indexer ni dashboard.
+Los datos de PostgreSQL y los registros de auditoría de Wazuh viven en volúmenes Docker. Falco escribe en `falco-logs/`. Estos registros, las credenciales, capturas y paquetes `dist/` no forman parte del repositorio. Para detener los servicios sin borrar los volúmenes:
 
-Los [dos diagramas actuales](docs/arquitectura-actual.md) distinguen la PC Windows y la VM Ubuntu. La [fase I](docs/fase-i-auditoria-wazuh-ubuntu.md) documenta la lectura de auditoría y las alertas nuevas en el manager de Ubuntu. Las [extensiones a VMs, Kubernetes y serverless](docs/extensiones-arquitectura.md) se describen como diseño futuro, sin atribuirles un despliegue.
+```bash
+sudo docker compose -f ubuntu.compose.yaml -f deploy/ubuntu/falco.compose.yaml -f deploy/ubuntu/wazuh-manager.compose.yaml stop
+```
 
-La [entrega técnica del integrante 2](docs/entrega-integrante-2.md) reúne arquitectura, componentes y límites. El informe editable para el integrante 4 está en `docs/entregables/` y las guías de reproducción y lectura de imágenes están en `docs/`.
-
-## Wazuh
-
-La copia oficial de Wazuh es un repositorio independiente y no se versiona aquí. Ejecuta `powershell -ExecutionPolicy Bypass -File scripts/preparar_wazuh_upstream.ps1` para obtener la etiqueta oficial `v4.14.9` y aplicar los archivos adaptados del directorio `security/wazuh/overrides/`. Los certificados, contraseñas y volúmenes se crean localmente y no se publican. [security/wazuh/README.md](security/wazuh/README.md) explica las pruebas realizadas.
-
-## Archivos privados
-
-`.env`, `credenciales_portal.txt`, certificados, configuraciones locales con hashes, capturas y el ZIP generado están excluidos de Git. No uses `docker compose down -v`: borraría los datos persistentes del piloto.
+`python3 scripts/paquetizar_ubuntu.py` crea un ZIP de código y configuración en `dist/`, sin credenciales, logs ni evidencias.

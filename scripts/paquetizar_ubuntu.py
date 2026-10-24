@@ -1,61 +1,48 @@
-"""Empaqueta solo los archivos necesarios para la VM; lista blanca explícita."""
+"""Empaqueta únicamente el código y la configuración necesarios en Ubuntu."""
 
 from pathlib import Path
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZipFile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "dist/uts-cwpp-ubuntu-2026-10-21.zip"
+OUTPUT = ROOT / "dist/uts-cwpp-ubuntu.zip"
 FILES = [
-    ("ubuntu.compose.yaml", "compose.yaml"),
-    ("deploy/ubuntu/falco.compose.yaml", "falco.compose.yaml"),
-    ("deploy/ubuntu/falco.compose.yaml", "deploy/ubuntu/falco.compose.yaml"),
-    ("deploy/ubuntu/wazuh-manager.compose.yaml", "deploy/ubuntu/wazuh-manager.compose.yaml"),
-    ("deploy/ubuntu/wazuh-manager.Dockerfile", "deploy/ubuntu/wazuh-manager.Dockerfile"),
-    ("deploy/ubuntu/wazuh-manager.conf", "deploy/ubuntu/wazuh-manager.conf"),
-    ("deploy/ubuntu/wazuh-falco-rules.xml", "deploy/ubuntu/wazuh-falco-rules.xml"),
-    ("deploy/ubuntu/wazuh-portal-rules.xml", "deploy/ubuntu/wazuh-portal-rules.xml"),
-    ("deploy/ubuntu/README.md", "README.md"),
-    ("app/backend/Dockerfile", "app/backend/Dockerfile"),
-    ("app/backend/requirements.txt", "app/backend/requirements.txt"),
-    ("app/backend/app.py", "app/backend/app.py"),
-    ("app/backend/templates/base.html", "app/backend/templates/base.html"),
-    ("app/backend/templates/index.html", "app/backend/templates/index.html"),
-    ("app/backend/templates/login.html", "app/backend/templates/login.html"),
-    ("app/backend/templates/tabla.html", "app/backend/templates/tabla.html"),
-    ("app/backend/static/style.css", "app/backend/static/style.css"),
-    ("database/init/01_schema.sql", "database/init/01_schema.sql"),
-    ("scripts/preparar_ubuntu.py", "scripts/preparar_ubuntu.py"),
-    ("scripts/provision_demo_users.py", "scripts/provision_demo_users.py"),
-    ("scripts/smoke_portal.py", "scripts/smoke_portal.py"),
-    ("scripts/verificar_falco_json.py", "scripts/verificar_falco_json.py"),
-    ("scripts/verificar_wazuh_falco.py", "scripts/verificar_wazuh_falco.py"),
-    ("scripts/verificar_wazuh_portal_ubuntu.py", "scripts/verificar_wazuh_portal_ubuntu.py"),
-    ("docs/fase-f-falco-ubuntu.md", "docs/fase-f-falco-ubuntu.md"),
-    ("docs/fase-h-preparacion-wazuh-falco.md", "docs/fase-h-preparacion-wazuh-falco.md"),
-    ("docs/fase-i-auditoria-wazuh-ubuntu.md", "docs/fase-i-auditoria-wazuh-ubuntu.md"),
-    ("docs/guia-reproduccion.md", "docs/guia-reproduccion.md"),
-    ("docs/evidencias/wazuh-falco-ubuntu-verificacion.json", "docs/evidencias/wazuh-falco-ubuntu-verificacion.json"),
-    ("docs/evidencias/wazuh-portal-ubuntu-verificacion.json", "docs/evidencias/wazuh-portal-ubuntu-verificacion.json"),
+    "README.md",
+    "ubuntu.compose.yaml",
+    "docs/arquitectura-ubuntu.svg",
+    "docs/guia-reproduccion.md",
+    "deploy/ubuntu/falco.compose.yaml",
+    "deploy/ubuntu/wazuh-manager.compose.yaml",
+    "deploy/ubuntu/wazuh-manager.Dockerfile",
+    "deploy/ubuntu/wazuh-manager.conf",
+    "deploy/ubuntu/wazuh-falco-rules.xml",
+    "deploy/ubuntu/wazuh-portal-rules.xml",
+    "app/backend/.dockerignore",
+    "app/backend/Dockerfile",
+    "app/backend/requirements.txt",
+    "app/backend/app.py",
+    "app/backend/templates/base.html",
+    "app/backend/templates/index.html",
+    "app/backend/templates/login.html",
+    "app/backend/templates/tabla.html",
+    "app/backend/static/style.css",
+    "database/init/01_schema.sql",
+    "scripts/preparar_ubuntu.py",
+    "scripts/provision_demo_users.py",
+    "scripts/smoke_portal.py",
+    "scripts/verificar_falco_json.py",
+    "scripts/verificar_wazuh_falco.py",
+    "scripts/verificar_wazuh_portal_ubuntu.py",
 ]
 
 
 def main():
-    if (ROOT / "ubuntu.compose.yaml").read_bytes() != (ROOT / "deploy/ubuntu/compose.yaml").read_bytes():
-        raise SystemExit("Los dos archivos Compose base de Ubuntu difieren; sincronízalos antes de empaquetar.")
     OUTPUT.parent.mkdir(exist_ok=True)
     with ZipFile(OUTPUT, "w", compression=ZIP_DEFLATED) as archive:
-        for source, destination in FILES:
-            if source == "deploy/ubuntu/README.md":
-                # En el ZIP este README vive en la raíz, junto a docs/.
-                content = (ROOT / source).read_text(encoding="utf-8")
-                archive.writestr(destination, content.replace("../../docs/", "docs/"))
-            else:
-                archive.write(ROOT / source, destination)
+        for path in FILES:
+            archive.write(ROOT / path, path)
     print(f"Paquete creado: {OUTPUT}")
-    print("Archivos incluidos:")
-    for _, destination in FILES:
-        print(f"  {destination}")
+    print(f"Archivos incluidos: {len(FILES)}")
 
 
 if __name__ == "__main__":

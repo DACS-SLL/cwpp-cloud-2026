@@ -1,4 +1,4 @@
-# Se combina con compose.yaml; el manager procesa JSON de Falco y auditoría del portal.
+# Se combina con ubuntu.compose.yaml; procesa JSON de Falco y auditoría del portal.
 services:
   wazuh_manager:
     build:

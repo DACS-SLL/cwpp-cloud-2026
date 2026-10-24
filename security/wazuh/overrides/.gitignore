@@ -1,8 +1,0 @@
-single-node/config/wazuh_indexer_ssl_certs/*.pem
-single-node/config/wazuh_indexer_ssl_certs/*.key
-multi-node/config/wazuh_indexer_ssl_certs/*.pem
-multi-node/config/wazuh_indexer_ssl_certs/*.key
-*.log
-single-node/.env
-single-node/config/wazuh_indexer/internal_users.local.yml
-single-node/config/wazuh_dashboard/wazuh.local.yml

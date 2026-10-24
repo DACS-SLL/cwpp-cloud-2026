@@ -7,8 +7,10 @@ __pycache__/
 dist/
 tmp/
 falco-logs/
-docs/evidencias/capturas/
+docs/evidencias/
 security/wazuh/upstream/
+*.log
+*.jsonl
 *.pem
 *.key
 internal_users.local.yml
